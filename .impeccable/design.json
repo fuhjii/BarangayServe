@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-04T04:47:20Z",
+  "title": "Design System: BarangayServe",
+  "extensions": {
+    "breakpoints": [
+      { "name": "navigation-collapse", "value": "992px" },
+      { "name": "single-column", "value": "768px" },
+      { "name": "compact", "value": "480px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Terracotta task action with a clear text label.",
+      "html": "<button class=\"ds-btn-primary\">Request a service</button>",
+      "css": ".ds-btn-primary { min-height: 2.75rem; padding: 0.6rem 1rem; border: 1px solid #c94f32; border-radius: 2px; background: #c94f32; color: #fff; font: 700 1rem/1.4 'Atkinson Hyperlegible Next', system-ui, sans-serif; cursor: pointer; } .ds-btn-primary:hover { border-color: #a83f2a; background: #a83f2a; } .ds-btn-primary:focus-visible { outline: 3px solid #e7b33e; outline-offset: 2px; } .ds-btn-primary:active { background: #863322; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Paper field with a readable border and visible focus.",
+      "html": "<label class=\"ds-field\">Reference number<input type=\"text\" placeholder=\"BR-2026-00001\"></label>",
+      "css": ".ds-field { display: grid; gap: 0.35rem; color: #123d34; font: 700 0.95rem 'Atkinson Hyperlegible Next', system-ui, sans-serif; } .ds-field input { min-height: 2.9rem; padding: 0.65rem 0.8rem; border: 1px solid #929e91; border-radius: 2px; background: #fffdf7; color: #202923; font: 400 1rem 'Atkinson Hyperlegible Next', system-ui, sans-serif; } .ds-field input:focus-visible { border-color: #123d34; outline: 3px solid rgba(18,61,52,.16); }"
+    },
+    {
+      "name": "Active Navigation Link",
+      "kind": "nav",
+      "refersTo": "active-navigation",
+      "description": "Text-first active destination in the civic-green rail.",
+      "html": "<a class=\"ds-nav-active\" href=\"#\" aria-current=\"page\">My requests</a>",
+      "css": ".ds-nav-active { display: flex; min-height: 2.9rem; align-items: center; padding: 0.65rem 0.8rem; border-radius: 2px; background: rgba(255,255,255,.1); box-shadow: inset 3px 0 0 #e7b33e; color: #fffdf7; font: 600 1rem 'Atkinson Hyperlegible Next', system-ui, sans-serif; text-decoration: none; } .ds-nav-active:hover, .ds-nav-active:focus-visible { background: rgba(255,255,255,.17); color: #fff; }"
+    },
+    {
+      "name": "Status Label",
+      "kind": "chip",
+      "refersTo": "status-label",
+      "description": "Text-bearing request status with a semantic tint.",
+      "html": "<span class=\"ds-status-ready\">Ready for Pickup</span>",
+      "css": ".ds-status-ready { display: inline-flex; align-items: center; min-height: 1.7rem; padding: 0.22rem 0.55rem; border-radius: 2px; background: #dcebe1; color: #15563f; font: 700 0.86rem 'Atkinson Hyperlegible Next', system-ui, sans-serif; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Civic Wayfinding",
+    "overview": "BarangayServe should feel like a clear, dependable public service counter. Residents need to know where to start and what happens next; staff need to find the next request in the queue and record its progress. The interface uses civic green as its shared wayfinding anchor, warm limestone as the page field, and an ordered route through the request stages.\n\nThe service remains a working PHP and Bootstrap application. Familiar web controls, open work areas, compact status routes, and readable tables carry the tasks. The new geometric doorway-and-route logo is a product mark, not an official barangay seal.",
+    "keyCharacteristics": [
+      "Deep green navigation with distinct Resident and Staff labels.",
+      "Warm limestone page ground, sage grouping surfaces, and terracotta actions.",
+      "Status is written in text and reinforced by position and color.",
+      "Open lists and tables replace repeated card grids."
+    ],
+    "rules": [
+      { "name": "The Status-in-Words Rule", "body": "Every status remains readable as text; color is reinforcement only.", "section": "colors" },
+      { "name": "The Working-Sans Rule", "body": "Use Atkinson for controls, labels, data, and body copy; reserve Literata for prominent page titles.", "section": "typography" },
+      { "name": "The Open-Surface Rule", "body": "Use borders and tonal surfaces only where they clarify a boundary or related set of controls.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do lead the Resident dashboard with the latest or pickup-ready request, its status route, and the next useful action.",
+      "Do lead the Staff dashboard with the oldest Submitted requests, then show compact status totals.",
+      "Do keep reference numbers tabular and easy to copy or scan.",
+      "Do use labels, status text, and programmatic table headings alongside visual cues.",
+      "Do keep the public home task-oriented and explain the real five-stage process."
+    ],
+    "donts": [
+      "Don't present the application as an approval or certificate-issuing service.",
+      "Don't turn each section into an identical rounded card or metric tile.",
+      "Don't use gradients as decoration, purple/blue gradient backgrounds, or color-only status signals.",
+      "Don't add decorative icons to controls whose labels already name the action.",
+      "Don't use thick colored side rails, oversized pills, or ornamental elements that compete with the request workflow."
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+# BarangayServe root .htaccess (Apache)
+Options -Indexes
+DirectoryIndex index.php
+
+# Never serve source-control, config copies, backups, or logs
+<FilesMatch "(^\.|\.(sql|md|log|bak|orig|dist|sh|ini|lock|json)$|config\.example\.php$|router\.php$)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
