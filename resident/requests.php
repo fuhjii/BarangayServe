@@ -17,7 +17,7 @@ $page    = $result['page'];
 $allCount = $status === '' ? $total : count_requests_by_status($uid)['total'];
 
 page_start('My requests', ['area' => 'resident', 'active' => 'requests']);
-echo page_header('My requests', 'Every request you have submitted, newest first.',
+echo page_header('My requests', '',
     '<a class="btn btn-primary" href="' . e(url('resident/services.php')) . '">Request a service</a>',
     [['Dashboard', 'resident/dashboard.php'], ['My requests', null]]);
 ?>
@@ -47,9 +47,9 @@ echo page_header('My requests', 'Every request you have submitted, newest first.
       <?= pagination_links($page, $perPage, $total, 'resident/requests.php', $status !== '' ? ['status' => $status] : []) ?>
     </div>
   <?php elseif ($allCount > 0): ?>
-    <?= empty_state('', 'No requests with this status', 'You have no request with the status "' . $status . '".', 'resident/requests.php', 'Show all requests') ?>
+    <?= empty_state('', 'No matches', 'Nothing is "' . $status . '" right now.', 'resident/requests.php', 'Show all requests') ?>
   <?php else: ?>
-    <?= empty_state('', 'You have not submitted any request yet', 'Choose a service to send your first request.', 'resident/services.php', 'Request a service') ?>
+    <?= empty_state('', 'Nothing here yet', 'Your requests will show up here.', 'resident/services.php', 'Request a service') ?>
   <?php endif; ?>
 </section>
 <?php

@@ -26,7 +26,7 @@ if (is_post()) {
 $fields = get_service_fields($serviceId);
 
 page_start('Questions: ' . $service['name'], ['area' => 'staff', 'active' => 'services']);
-echo page_header($service['name'], 'Extra questions residents answer for this service.',
+echo page_header($service['name'], 'Questions residents answer for this service.',
     '<a class="btn btn-primary" href="' . e(url('staff/field_edit.php') . '?service=' . $serviceId) . '">Add a question</a>',
     [['Dashboard', 'staff/dashboard.php'], ['Services', 'staff/services.php'], ['Questions', null]]);
 ?>

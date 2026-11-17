@@ -31,22 +31,20 @@ function confirm_attr(string $message, string $buttonLabel = 'Yes, continue'): s
 // ---------------------------------------------------------------------------
 
 /**
- * $crumbs: [['Dashboard', 'resident/dashboard.php'], ['My requests', null]]  (last one has no link)
+ * $crumbs: [['Dashboard', 'resident/dashboard.php'], ['My requests', null]]  (last one has no link).
+ * Only the parent page (the second-to-last entry) is shown, as a small "back" link.
  * $actionsHtml: trusted HTML for buttons on the right (built by our own code).
  */
 function page_header(string $title, string $subtitle = '', string $actionsHtml = '', array $crumbs = []): string
 {
     $html = '<div class="page-header">';
-    if ($crumbs) {
-        $html .= '<nav aria-label="Breadcrumb"><ol class="breadcrumb">';
-        foreach ($crumbs as $crumb) {
-            if (!empty($crumb[1])) {
-                $html .= '<li class="breadcrumb-item"><a href="' . e(url($crumb[1])) . '">' . e($crumb[0]) . '</a></li>';
-            } else {
-                $html .= '<li class="breadcrumb-item active" aria-current="page">' . e($crumb[0]) . '</li>';
-            }
+    // One quiet "back" link to the parent page replaces the full breadcrumb trail.
+    if (count($crumbs) >= 2) {
+        $parent = $crumbs[count($crumbs) - 2];
+        if (!empty($parent[1])) {
+            $html .= '<nav class="back-nav" aria-label="Back"><a class="back-link" href="' . e(url($parent[1])) . '">'
+                . '<i class="bi bi-arrow-left" aria-hidden="true"></i>' . e($parent[0]) . '</a></nav>';
         }
-        $html .= '</ol></nav>';
     }
     $html .= '<div class="page-header-row"><div class="page-header-text">';
     $html .= '<h1>' . e($title) . '</h1>';
@@ -143,7 +141,7 @@ function status_pipeline(array $counts, string $listPath): string
 // ---------------------------------------------------------------------------
 
 /**
- * Chronological history, oldest first. Columns: date and time, status, remark.
+ * History, newest first. Columns: date and time, status, remark.
  * Staff also see who made each change (the "audit" column). Residents do not.
  */
 function history_table(array $entries, bool $forStaff = false): string
@@ -153,7 +151,7 @@ function history_table(array $entries, bool $forStaff = false): string
     }
 
     $html  = '<div class="table-wrap"><table class="table table-stack history-table align-middle">';
-    $html .= '<caption class="visually-hidden">History of status changes and remarks, oldest first</caption>';
+    $html .= '<caption class="visually-hidden">History of status changes and remarks, newest first</caption>';
     $html .= '<thead><tr><th scope="col">Date and time</th><th scope="col">Status</th><th scope="col">Remark</th>';
     $html .= $forStaff ? '<th scope="col">Updated by</th>' : '';
     $html .= '</tr></thead><tbody>';
@@ -166,15 +164,15 @@ function history_table(array $entries, bool $forStaff = false): string
 
         $html .= '<td data-label="Status">' . status_badge($entry['status']);
         if ($entry['entry_type'] === 'correction') {
-            $html .= ' <span class="entry-tag entry-tag-correction">Correction: moved back</span>';
+            $html .= ' <span class="entry-tag entry-tag-correction">Moved back</span>';
         } elseif ($entry['entry_type'] === 'remark') {
-            $html .= ' <span class="entry-tag">Remark added</span>';
+            $html .= ' <span class="entry-tag">Remark</span>';
         }
         $html .= '</td>';
 
         $html .= '<td data-label="Remark">' . ($entry['remark'] !== null && $entry['remark'] !== ''
             ? nl2br(e($entry['remark']))
-            : '<span class="text-body-secondary">No remark</span>') . '</td>';
+            : '<span class="text-body-secondary">None</span>') . '</td>';
 
         if ($forStaff) {
             $who = $entry['changed_by_name'] . ($entry['changed_by_role'] === 'resident' ? ' (resident)' : ' (staff)');

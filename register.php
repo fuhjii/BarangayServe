@@ -60,8 +60,7 @@ page_start('Create an account', ['area' => 'public']);
 ?>
 <div class="auth-layout auth-wide">
   <section class="panel" aria-labelledby="register-title">
-    <h1 id="register-title" class="h2 mb-1">Create a resident account</h1>
-    <p class="text-body-secondary">Fields marked <span class="text-danger" aria-hidden="true">*</span> are required.</p>
+    <h1 id="register-title" class="h2 mb-3">Create a resident account</h1>
 
     <?= error_summary($errors) ?>
 
@@ -69,11 +68,11 @@ page_start('Create an account', ['area' => 'public']);
       <?= csrf_field() ?>
       <?= form_input('full_name', 'Full name', $errors, [
           'value' => old('full_name'), 'required' => true, 'maxlength' => 100, 'autocomplete' => 'name',
-          'help' => 'Use your complete name as it appears on your ID.',
+          'help' => 'As it appears on your ID.',
       ]) ?>
       <?= form_input('email', 'Email address', $errors, [
           'type' => 'email', 'value' => old('email'), 'required' => true, 'maxlength' => 150, 'autocomplete' => 'email',
-          'help' => 'You will use this to log in.',
+          'help' => 'Used to log in.',
       ]) ?>
       <?= form_input('contact_number', 'Contact number', $errors, [
           'type' => 'tel', 'value' => old('contact_number'), 'required' => true, 'maxlength' => 20,
@@ -81,11 +80,11 @@ page_start('Create an account', ['area' => 'public']);
       ]) ?>
       <?= form_input('address', 'Home address', $errors, [
           'value' => old('address'), 'required' => true, 'maxlength' => 255, 'autocomplete' => 'street-address',
-          'help' => 'House number, street, and purok or subdivision.',
+          'help' => 'House number, street, purok or subdivision.',
       ]) ?>
       <?= form_input('password', 'Password', $errors, [
           'type' => 'password', 'required' => true, 'maxlength' => 72, 'autocomplete' => 'new-password', 'toggle' => true,
-          'help' => 'At least 8 characters, with at least one letter and one number.',
+          'help' => 'At least 8 characters, with a letter and a number.',
       ]) ?>
       <?= form_input('password_confirm', 'Type the password again', $errors, [
           'type' => 'password', 'required' => true, 'maxlength' => 72, 'autocomplete' => 'new-password',
@@ -98,16 +97,6 @@ page_start('Create an account', ['area' => 'public']);
     <p class="auth-switch">Already have an account? <a href="<?= e(url('login.php')) ?>">Log in</a></p>
   </section>
 
-  <aside class="auth-aside" aria-labelledby="register-aside">
-    <h2 id="register-aside">What happens next</h2>
-    <ol>
-      <li>Create your account here.</li>
-      <li>Log in and choose the service you need.</li>
-      <li>Submit the form and keep your reference number.</li>
-      <li>Come back any time to see the status of your request.</li>
-    </ol>
-    <p class="text-body-secondary">Your details are used only to process your barangay requests.</p>
-  </aside>
 </div>
 <?php
 page_end();

@@ -46,7 +46,7 @@ $val = function (string $key, string $fallback) use ($posted, $service) {
 $isActive = $posted ? !empty($_POST['is_active']) : ($isNew ? true : (int) $service['is_active'] === 1);
 
 page_start($isNew ? 'Add a service' : 'Edit service', ['area' => 'staff', 'active' => 'services']);
-echo page_header($isNew ? 'Add a service' : 'Edit service', 'Residents see the name and description when they choose a service.', '', [
+echo page_header($isNew ? 'Add a service' : 'Edit service', '', '', [
     ['Dashboard', 'staff/dashboard.php'], ['Services', 'staff/services.php'], [$isNew ? 'Add a service' : $service['name'], null],
 ]);
 ?>

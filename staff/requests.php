@@ -26,7 +26,7 @@ $keep = array_filter([
 $services = get_services_for_staff();
 
 page_start('Requests', ['area' => 'staff', 'active' => 'requests']);
-echo page_header('Requests', 'Search and filter every submitted request.', '', [
+echo page_header('Requests', '', '', [
     ['Dashboard', 'staff/dashboard.php'], ['Requests', null],
 ]);
 ?>

@@ -43,14 +43,9 @@ page_start('Log in', ['area' => 'public']);
         <button type="submit" class="btn btn-primary btn-block-mobile">Log in</button>
       </div>
     </form>
-    <p class="auth-switch">New here? <a href="<?= e(url('register.php')) ?>">Create a resident account</a></p>
+    <p class="auth-switch">New here? <a href="<?= e(url('register.php')) ?>">Create an account</a>
+      <span class="auth-switch-alt">Barangay staff? <a href="<?= e(url('staff/login.php')) ?>">Staff log in</a></span></p>
   </section>
-
-  <aside class="auth-aside">
-    <h2>Barangay staff?</h2>
-    <p>Authorized staff use the <a href="<?= e(url('staff/login.php')) ?>">staff log in page</a>.
-       Staff accounts are created by the barangay office. They cannot be created on this website.</p>
-  </aside>
 </div>
 <?php
 page_end();

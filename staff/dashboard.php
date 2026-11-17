@@ -11,7 +11,7 @@ $waiting = list_staff_requests(['status' => 'Submitted', 'sort' => 'oldest'], 1,
 $latest  = list_staff_requests(['sort' => 'newest'], 1, 8)['rows'];
 
 page_start('Staff dashboard', ['area' => 'staff', 'active' => 'dashboard']);
-echo page_header('Staff dashboard', 'Requests from residents, counted by their current status.',
+echo page_header('Staff dashboard', '',
     '<a class="btn btn-primary" href="' . e(url('staff/requests.php')) . '">All requests</a>');
 ?>
 <section class="panel panel-flush staff-queue" aria-labelledby="waiting-title">

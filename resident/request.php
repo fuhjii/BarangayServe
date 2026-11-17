@@ -18,14 +18,9 @@ $history = get_request_history((int) $request['id']);
 $answers = decode_request_answers($request['request_data']);
 $status  = $request['status'];
 
-// The latest remark staff wrote (shown next to the current status).
-$latestRemark = null;
-for ($i = count($history) - 1; $i >= 0; $i--) {
-    if ($history[$i]['remark'] !== null && $history[$i]['remark'] !== '') {
-        $latestRemark = $history[$i];
-        break;
-    }
-}
+// The page shows the latest updates; the full list is one click away.
+$historyLimit = 3;
+$historyShown = array_slice($history, 0, $historyLimit);
 
 page_start($request['reference_number'], ['area' => 'resident', 'active' => 'requests']);
 echo page_header('Request details', '', '', [
@@ -40,9 +35,9 @@ echo page_header('Request details', '', '', [
   <div class="pickup-notice mt-3" role="status">
     <div>
       <strong>Ready for pickup</strong>
-      <p>Your document or service is ready. Please go to <?= e((string) config('office_location', 'the barangay hall')) ?>
-         and show your reference number <span class="fw-bold"><?= e($request['reference_number']) ?></span>.
-         <?php $hours = trim((string) config('office_hours', '')); echo $hours !== '' ? ' Office hours: ' . e($hours) . '.' : ''; ?></p>
+      <p>Go to <?= e((string) config('office_location', 'the barangay hall')) ?> and show
+         <span class="fw-bold"><?= e($request['reference_number']) ?></span>.
+         <?php $hours = trim((string) config('office_hours', '')); echo $hours !== '' ? e($hours) . '.' : ''; ?></p>
     </div>
   </div>
 <?php endif; ?>
@@ -50,16 +45,12 @@ echo page_header('Request details', '', '', [
 <section class="panel" aria-labelledby="progress-title">
   <h2 id="progress-title" class="panel-title">Progress</h2>
   <?= status_tracker($status) ?>
-  <p class="mt-3 mb-0"><strong><?= e($status) ?>:</strong> <?= e(STATUS_DETAILS[$status]['resident_text'] ?? '') ?></p>
-  <?php if ($latestRemark !== null): ?>
-    <p class="mt-2 mb-0"><strong>Latest remark from the barangay</strong> (<?= e(format_datetime($latestRemark['created_at'])) ?>):<br>
-      <?= nl2br(e($latestRemark['remark'])) ?></p>
-  <?php endif; ?>
+  <p class="progress-note"><?= e(STATUS_DETAILS[$status]['resident_text'] ?? '') ?></p>
 </section>
 
 <div class="request-layout request-layout-stack mt-3">
   <section class="panel" aria-labelledby="info-title">
-    <h2 id="info-title" class="panel-title">What you submitted</h2>
+    <h2 id="info-title" class="panel-title">Details</h2>
     <dl class="detail-list">
       <div class="detail-row"><dt>Service</dt><dd><?= e($request['service_type']) ?></dd></div>
       <div class="detail-row"><dt>Purpose</dt><dd><?= nl2br(e($request['purpose'])) ?></dd></div>
@@ -68,18 +59,19 @@ echo page_header('Request details', '', '', [
       <div class="detail-row"><dt>Home address</dt><dd><?= e($request['applicant_address']) ?></dd></div>
     </dl>
     <?php if ($answers): ?>
-      <h3 class="form-section-title">Service details</h3>
+      <h3 class="form-section-title">More about your request</h3>
       <?= answers_list($answers) ?>
     <?php endif; ?>
   </section>
 
   <section class="panel" aria-labelledby="history-title">
     <div class="panel-title-row">
-      <h2 id="history-title" class="panel-title">History</h2>
-      <a href="<?= e(url('resident/history.php') . '?id=' . (int) $request['id']) ?>">Full history page</a>
+      <h2 id="history-title" class="panel-title">Updates</h2>
+      <?php if (count($history) > $historyLimit): ?>
+        <a class="text-link" href="<?= e(url('resident/history.php') . '?id=' . (int) $request['id']) ?>">See all <?= count($history) ?></a>
+      <?php endif; ?>
     </div>
-    <?= history_table($history, false) ?>
-    <p class="mt-3 mb-0 text-body-secondary">Last updated <?= e(format_datetime($request['updated_at'])) ?>.</p>
+    <?= history_table($historyShown, false) ?>
   </section>
 </div>
 <?php

@@ -9,7 +9,7 @@ $user = require_resident();
 $services = get_active_services();
 
 page_start('Request a service', ['area' => 'resident', 'active' => 'services']);
-echo page_header('Request a service', 'Choose the service you need. The next page asks for the information that service requires.', '', [
+echo page_header('Request a service', '', '', [
     ['Dashboard', 'resident/dashboard.php'],
     ['Request a service', null],
 ]);
@@ -24,15 +24,14 @@ echo page_header('Request a service', 'Choose the service you need. The next pag
             <?php if ($service['description'] !== ''): ?><p><?= e($service['description']) ?></p><?php endif; ?>
           </div>
           <a class="btn btn-primary" href="<?= e(url('resident/request_new.php') . '?service=' . (int) $service['id']) ?>">
-            Start request<span class="visually-hidden">: <?= e($service['name']) ?></span>
+            Start<span class="visually-hidden">: <?= e($service['name']) ?></span>
           </a>
         </li>
       <?php endforeach; ?>
     </ul>
   <?php else: ?>
-    <?= empty_state('', 'No services are open right now', 'The barangay office has not opened any service for online requests yet. Please check again later.') ?>
+    <?= empty_state('', 'No services open yet', 'Please check back later.') ?>
   <?php endif; ?>
 </section>
-<p class="mt-3 text-body-secondary">Barangay staff review every request. Sending a request does not mean it is approved.</p>
 <?php
 page_end();

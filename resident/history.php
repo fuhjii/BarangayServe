@@ -13,9 +13,7 @@ if ($request === null) {
 $history = get_request_history((int) $request['id']);
 
 page_start('History of ' . $request['reference_number'], ['area' => 'resident', 'active' => 'requests']);
-echo page_header('Request history', 'Every status change and remark for this request, oldest first.',
-    '<a class="btn btn-outline-primary" href="' . e(url('resident/request.php') . '?id=' . (int) $request['id']) . '">Back to request details</a>',
-    [['Dashboard', 'resident/dashboard.php'], ['My requests', 'resident/requests.php'],
+echo page_header('History', '', '', [['Dashboard', 'resident/dashboard.php'], ['My requests', 'resident/requests.php'],
      [$request['reference_number'], 'resident/request.php?id=' . (int) $request['id']], ['History', null]]);
 ?>
 <?= reference_stub($request) ?>

@@ -8,7 +8,7 @@
    Sections
      1. Fonts and design tokens
      2. Base and Bootstrap adjustments
-     3. Header, navigation, footer
+     3. Header and navigation
      4. Page header, panels, messages
      5. Status badge, tracker, stub, pipeline
      6. Tables (stack on phones) and history
@@ -127,7 +127,7 @@ a { text-underline-offset: 0.18em; }
 }
 .skip-link:focus { top: 0.75rem; color: #fff; }
 
-/* ---------- 3. Header, navigation, footer ---------- */
+/* ---------- 3. Header and navigation ---------- */
 .app-header { position: sticky; top: 0; z-index: 1030; }
 .app-navbar {
   background: #fff;
@@ -150,15 +150,8 @@ a { text-underline-offset: 0.18em; }
 .app-navbar-staff .nav-link.active { color: #fff; }
 .navbar-toggler { border-color: var(--line-strong); }
 .app-navbar-staff .navbar-toggler { border-color: rgba(255, 255, 255, 0.5); }
-.account-btn { font-weight: 600; border: 1px solid var(--line-strong); background: transparent; color: var(--ink); }
-.account-btn:hover, .account-btn:focus-visible, .account-btn.show { background: var(--paper); color: var(--ink); border-color: var(--ink); }
-.app-navbar-staff .account-btn { color: #fff; border-color: rgba(255, 255, 255, 0.45); }
-.app-navbar-staff .account-btn:hover, .app-navbar-staff .account-btn.show { background: rgba(255, 255, 255, 0.12); color: #fff; border-color: #fff; }
-.account-who { white-space: normal; max-width: 18rem; overflow-wrap: anywhere; }
 .dropdown-menu { border-color: var(--line); border-radius: var(--radius-control); }
 
-.app-footer { background: #fff; border-top: 1px solid var(--line); padding: 1.5rem 0; color: var(--muted); font-size: 0.93rem; }
-.app-footer p { max-width: 70ch; }
 
 /* ---------- 4. Page header, panels, messages ---------- */
 .page-header { margin-bottom: 1.5rem; }
@@ -428,8 +421,6 @@ textarea.form-control { min-height: 5rem; }
   .home-split { grid-template-columns: 1fr; }
   .app-navbar .navbar-collapse { padding-top: 0.75rem; }
   .app-navbar .nav-link.active { box-shadow: inset 4px 0 0 var(--gold); }
-  .nav-actions { padding-bottom: 0.5rem; }
-  .app-navbar .dropdown { padding-bottom: 0.5rem; }
 }
 @media (max-width: 767.98px) {
   .panel { padding: 1.15rem; }
@@ -476,7 +467,7 @@ textarea.form-control { min-height: 5rem; }
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
 @media print {
-  .app-header, .app-footer, .page-actions, .skip-link, .btn { display: none !important; }
+  .app-header, .app-topbar, .page-actions, .skip-link, .btn { display: none !important; }
   body.app-body { background: #fff; }
   .panel, .stub { border-color: #888; }
 }
@@ -533,16 +524,10 @@ a:hover { color: var(--ink-deep); }
 .app-navbar .nav-link.active { color: #fffdf7; background: rgba(255,255,255,.1); box-shadow: inset 3px 0 0 var(--civic-marigold); border-radius: 2px; }
 .app-navbar .navbar-toggler { border-color: rgba(255,255,255,.55); color: white; }
 .app-navbar .navbar-toggler-icon { filter: brightness(0) invert(1); }
-.area-name { margin: 2rem 0 0.7rem; color: #c9d8ce; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
-.account-btn { min-height: 2.75rem; border: 1px solid rgba(255,255,255,.4); border-radius: 2px; color: #fffdf7; background: transparent; }
-.account-btn:hover, .account-btn:focus-visible, .account-btn.show { color: #fff; background: rgba(255,255,255,.1); border-color: #f6f2e8; }
 .dropdown-menu { border: 1px solid #d8dace; border-radius: 2px; box-shadow: 0 10px 24px rgba(20,40,31,.12); padding: 0.35rem; }
 .dropdown-item { min-height: 2.7rem; display: flex; align-items: center; border-radius: 2px; }
 .dropdown-item.active, .dropdown-item:active { background: var(--civic-green); color: #fff; }
 .skip-link { border-radius: 2px; background: var(--civic-marigold); color: #202923; font-weight: 700; }
-.app-footer { background: #e7e9d8; border-top: 1px solid #ccd2c4; color: #3c4c42; padding: 1.4rem 0; font-size: 0.9rem; }
-.app-footer p { margin-bottom: 0.3rem; }
-.app-footer strong { color: var(--civic-green); }
 
 /* Public navigation remains a horizontal entry point. */
 .app-navbar-public { background: var(--civic-green); }
@@ -560,10 +545,7 @@ a:hover { color: var(--ink-deep); }
   body.area-resident .app-navbar .navbar-brand, body.area-staff .app-navbar .navbar-brand { margin: 0; }
   body.area-resident .app-navbar .navbar-collapse, body.area-staff .app-navbar .navbar-collapse { display: flex !important; flex: 1; flex-direction: column; align-items: stretch; width: 100%; padding-top: 2.1rem; }
   body.area-resident .app-navbar .navbar-nav, body.area-staff .app-navbar .navbar-nav { flex-direction: column; width: 100%; margin: 0 0 auto !important; gap: 0.25rem; }
-  body.area-resident .app-navbar .dropdown, body.area-staff .app-navbar .dropdown { margin-top: auto; padding: 1rem 0 0.2rem; border-top: 1px solid rgba(255,255,255,.22); }
-  body.area-resident .app-navbar .account-btn, body.area-staff .app-navbar .account-btn { width: 100%; justify-content: space-between; }
   body.area-resident .app-main.container, body.area-staff .app-main.container { width: auto; max-width: none; margin: 0 0 0 258px; padding: 2.8rem clamp(2rem, 4.2vw, 4.5rem) 4rem; }
-  body.area-resident .app-footer, body.area-staff .app-footer { margin-left: 258px; }
 }
 
 /* Page headings and open work areas */
@@ -726,10 +708,7 @@ a:hover { color: var(--ink-deep); }
   .app-navbar .navbar-collapse { padding-top: 0.75rem; }
   .app-navbar .navbar-nav { gap: 0.2rem; }
   .app-navbar .nav-link.active { box-shadow: inset 3px 0 0 var(--civic-marigold); }
-  .app-navbar .dropdown { margin-top: 0.75rem; }
-  .app-navbar .account-btn { min-width: 10rem; }
   body.area-resident .app-main.container, body.area-staff .app-main.container { max-width: 100%; }
-  body.area-resident .app-footer, body.area-staff .app-footer { margin-left: 0; }
   .resident-focus { grid-template-columns: minmax(12rem,.75fr) minmax(0,1.25fr); gap: 1.4rem; }
   .pipeline { grid-template-columns: repeat(3,minmax(0,1fr)); }
   .pipeline-item:nth-child(4) { border-left: 0; }
@@ -783,3 +762,200 @@ a:hover { color: var(--ink-deep); }
   .home-hero { padding-top: 1.6rem; }
   .home-hero h1 { font-size: clamp(2.25rem, 12vw, 3.1rem); }
 }
+
+/* =====================================================================
+   10. Calm refinement: fewer lines, softer shapes, more room.
+   Same palette (green rail, limestone ground, terracotta action, marigold
+   accent). This layer comes last so it wins over the earlier rules.
+   ===================================================================== */
+:root {
+  --r-sm: 8px;
+  --r-md: 12px;
+  --hairline: #e3e0d2;
+  --card: #fffdf8;
+  --rail-w: 248px;
+}
+body.app-body { font-size: 1rem; line-height: 1.6; }
+.app-main { padding-top: 1.25rem; }
+h1 { font-size: clamp(1.7rem, 1.35rem + 1.1vw, 2.2rem); letter-spacing: -0.02em; }
+h2, .h2 { font-size: 1.15rem; }
+.btn { --bs-btn-border-radius: var(--r-sm); font-weight: 650; }
+.form-control, .form-select { border-radius: var(--r-sm); border-color: #b9c0b3; }
+.alert { border-radius: var(--r-sm); }
+
+/* --- Rail: brand, three links, nothing else --- */
+.app-navbar { background: var(--civic-green); }
+.brand-sub { color: #bfd1c6; letter-spacing: 0; }
+.app-navbar .navbar-nav { gap: 0.2rem; }
+.app-navbar .nav-link { gap: 0.7rem; min-height: 2.75rem; padding: 0.6rem 0.85rem; border-radius: var(--r-sm); color: #dbe6df; font-weight: 600; }
+.app-navbar .nav-link:hover { background: rgba(255,255,255,.07); color: #fff; }
+.app-navbar .nav-link.active { background: rgba(255,255,255,.13); color: #fff; box-shadow: none; border-radius: var(--r-sm); }
+.nav-link-icon { font-size: 1.05rem; line-height: 1; opacity: .75; }
+.nav-link.active .nav-link-icon { opacity: 1; color: var(--civic-marigold); }
+
+/* --- Top bar with the account menu (always opens downward) --- */
+.app-topbar { display: flex; justify-content: flex-end; align-items: center; min-height: 2.75rem; margin-bottom: 1rem; }
+.account-btn {
+  display: inline-flex; align-items: center; gap: 0.55rem; min-height: 2.5rem;
+  padding: 0.25rem 0.7rem 0.25rem 0.3rem; border: 1px solid var(--hairline); border-radius: 999px;
+  background: var(--card); color: var(--civic-green); font: 650 0.95rem var(--font-ui);
+  transition: border-color .15s, background-color .15s;
+}
+.account-btn:hover, .account-btn.show { background: #fff; border-color: #b9c0b3; color: var(--civic-green); }
+.account-btn:focus-visible { outline: 3px solid var(--civic-marigold); outline-offset: 2px; }
+.account-avatar { display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border-radius: 50%; background: var(--civic-green); color: #fffdf7; font: 700 0.9rem var(--font-ui); }
+.account-caret { font-size: 0.7rem; color: var(--civic-muted); transition: transform .15s; }
+.account-btn.show .account-caret { transform: rotate(180deg); }
+.account-menu { min-width: 15rem; margin-top: 0.4rem !important; padding: 0.4rem; border: 1px solid var(--hairline); border-radius: var(--r-md); box-shadow: 0 12px 28px rgba(18,61,52,.14); }
+.account-who { display: grid; gap: 0.1rem; padding: 0.5rem 0.65rem 0.6rem; overflow-wrap: anywhere; }
+.account-who span { color: var(--civic-muted); font-size: 0.88rem; }
+.account-menu .dropdown-divider { margin: 0.2rem 0; border-color: var(--hairline); }
+.account-menu .dropdown-item { gap: 0.6rem; border-radius: var(--r-sm); font-weight: 600; }
+.account-menu .dropdown-item:hover { background: #eef0e4; }
+.account-menu .dropdown-item.active { background: #eef0e4; color: var(--civic-green); }
+.account-menu .dropdown-item .bi { color: var(--civic-muted); }
+.account-menu form { margin: 0; }
+
+/* --- Page header: one quiet back link, one title --- */
+.page-header { margin-bottom: 1.5rem; }
+.back-nav { margin-bottom: 0.5rem; }
+.back-link { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--civic-muted); font-size: 0.92rem; font-weight: 600; text-decoration: none; }
+.back-link:hover { color: var(--civic-green); text-decoration: underline; }
+.page-subtitle { margin-top: 0.3rem; font-size: 1rem; }
+
+/* --- Surfaces: soft cards for the main groups --- */
+.panel-flush, .panel, .resident-focus, .status-overview .pipeline { background: var(--card); }
+.panel { border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 1.5rem; }
+.panel-flush { padding: 0; overflow: hidden; }
+.panel-head { padding: 1rem 1.5rem; border-bottom: 1px solid var(--hairline); }
+.panel-title { font: 650 1.1rem/1.3 var(--font-ui); color: var(--civic-green); margin-bottom: 1rem; }
+.panel-title-row { margin-bottom: 1rem; align-items: center; }
+.panel + .panel, .stub + .panel, .panel + .stub { margin-top: 1.25rem; }
+.request-layout .panel + .panel { margin-top: 0; }
+.auth-layout > .panel { border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 1.75rem; }
+.table-wrap { border-top: 0; overflow-x: auto; overflow-y: hidden; }
+.panel-flush .table-wrap { border-top: 1px solid var(--hairline); }
+.panel > .table-wrap { margin: 0 -0.25rem; }
+
+/* --- Tables: quiet header, soft dividers --- */
+.table > thead > tr > th { background: transparent; border-bottom: 1px solid var(--hairline); color: var(--civic-muted); font-size: 0.85rem; font-weight: 650; letter-spacing: 0; padding: 0.7rem 1rem; }
+.table > tbody > tr > td { padding: 0.95rem 1rem; border-color: var(--hairline); }
+.panel-flush .table > thead > tr > th:first-child, .panel-flush .table > tbody > tr > td:first-child { padding-left: 1.5rem; }
+.panel-flush .table > thead > tr > th:last-child, .panel-flush .table > tbody > tr > td:last-child { padding-right: 1.5rem; }
+.table > tbody > tr:last-child > td { border-bottom: 0; }
+.table > tbody > tr:hover > td { background: #f6f4ea; }
+.table-footer { padding: 0.9rem 1.5rem; border-top: 1px solid var(--hairline); font-size: 0.92rem; }
+.filter-bar { background: transparent; border-bottom: 1px solid var(--hairline); padding: 1rem 1.5rem; }
+.filter-bar .form-label { color: var(--civic-muted); font-weight: 650; font-size: 0.88rem; }
+
+/* --- Status badges: soft pills --- */
+.status-badge { border-radius: 999px; padding: 0.2rem 0.7rem; font-size: 0.84rem; font-weight: 700; }
+.entry-tag { border-radius: 999px; padding: 0.1rem 0.55rem; }
+
+/* --- History: newest on top, clearly marked --- */
+.history-table tbody tr:last-child td { background: transparent; }
+.history-table tbody tr:first-child td { background: #f7f2de; }
+.history-table tbody tr:first-child td:first-child { box-shadow: inset 3px 0 0 var(--civic-marigold); }
+.history-table tbody tr:only-child td { background: transparent; box-shadow: none; }
+.history-table tbody tr:hover > td { background: #f6f4ea; }
+.history-table tbody tr:first-child:hover > td { background: #f7f2de; }
+.history-table td:first-child { white-space: nowrap; color: var(--civic-muted); font-size: 0.93rem; }
+.panel > .table-wrap .history-table td:first-child { padding-left: 1rem; }
+
+/* --- Reference stub and request focus: the one memorable spot --- */
+.stub { background: var(--card); border: 1px solid var(--hairline); border-radius: var(--r-md); border-top: 4px solid var(--civic-marigold); }
+.stub-main, .stub-side { padding: 1.3rem 1.5rem; }
+.stub-side { border-left: 1px dashed #c3c9bd; }
+.stub-service { color: var(--civic-muted); font-weight: 600; }
+.resident-focus { border: 1px solid var(--hairline); border-top: 4px solid var(--civic-green); border-radius: var(--r-md); padding: 1.6rem 1.75rem; gap: clamp(1.5rem, 4vw, 3.5rem); }
+.resident-focus h2 { color: var(--civic-muted); font-size: 0.95rem; font-weight: 650; margin-bottom: 0.7rem; }
+.focus-status-line { margin-bottom: 0.6rem; }
+.focus-progress > p { margin-bottom: 0; }
+.focus-progress .tracker { margin: 1.2rem 0 1.1rem; }
+.progress-note { margin: 1rem 0 0; color: var(--civic-muted); }
+.focus-empty h2 { color: var(--civic-green); font-size: 1.2rem; margin-bottom: 0.4rem; }
+.pickup-notice { border: 1px solid #b9d8c2; border-radius: var(--r-md); background: #e8f3e9; padding: 1rem 1.25rem; }
+.pickup-notice p { color: #2a5a40; }
+.pickup-notice ul { list-style: none; padding: 0; margin-top: 0.6rem !important; display: grid; gap: 0.25rem; }
+.pickup-service { display: inline; margin-left: 0.6rem; color: #3f6a52; }
+
+/* --- Pipeline: a light strip --- */
+.pipeline { border: 1px solid var(--hairline); border-radius: var(--r-md); overflow: hidden; }
+.pipeline-item + .pipeline-item { border-left: 1px solid var(--hairline); }
+.status-overview, .request-list-section { margin-top: 2rem; }
+.section-heading h2 { font-size: 1.1rem; }
+.request-list-section .table-wrap { border: 1px solid var(--hairline); border-radius: var(--r-md); background: var(--card); }
+
+/* --- Detail lists --- */
+.detail-row { border-color: var(--hairline); padding: 0.75rem 0; }
+.detail-row dt { font-weight: 600; color: var(--civic-muted); }
+.form-section-title { border-color: var(--hairline); font-size: 1rem; }
+
+/* --- Services list --- */
+.service-item { border-color: var(--hairline); padding: 1.15rem 1.5rem; }
+.service-item h2 { font: 650 1.05rem var(--font-ui); }
+
+/* --- Forms --- */
+.service-request-form { border-top: 0; padding-top: 0; }
+.readonly-box { border-radius: var(--r-sm); }
+.action-choice { padding: 0.8rem 0.9rem; margin-bottom: 0.5rem; border: 1px solid var(--hairline); border-radius: var(--r-sm); background: #fff; }
+.action-choice:hover { background: #f6f4ea; }
+.action-choice:has(input:checked) { border-color: var(--civic-green); background: #eef3ea; outline: 0; }
+
+/* --- Sign-in --- */
+.auth-layout { grid-template-columns: minmax(0, 30rem); }
+.auth-layout.auth-wide { grid-template-columns: minmax(0, 36rem); }
+.auth-switch { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.4rem 1.5rem; }
+.auth-switch-alt { color: var(--civic-muted); }
+
+/* --- Home --- */
+.home-hero { padding: 2rem 0 1.5rem; }
+.home-hero h1 { max-width: 16ch; font-size: clamp(2.3rem, 1.6rem + 2.8vw, 3.6rem); }
+.home-hero .lead { max-width: 44ch; color: var(--civic-muted); font-size: 1.15rem; }
+.home-steps { margin-top: 1.5rem; }
+.how-list { border: 1px solid var(--hairline); border-radius: var(--r-md); background: var(--card); overflow: hidden; }
+.how-list li + li { border-left-color: var(--hairline); }
+.home-note { margin-top: 1.75rem; color: var(--civic-muted); font-size: 0.93rem; max-width: 62ch; }
+
+/* --- Rail layout on desktop (no footer, no bottom account block) --- */
+@media (min-width: 992px) {
+  body.area-resident .app-header, body.area-staff .app-header { width: var(--rail-w); }
+  body.area-resident .app-main.container, body.area-staff .app-main.container { margin-left: var(--rail-w); padding: 1.25rem clamp(1.5rem, 4vw, 4rem) 4rem; max-width: none; }
+  body.area-resident .app-navbar .navbar-collapse, body.area-staff .app-navbar .navbar-collapse { padding-top: 2.25rem; }
+}
+@media (max-width: 991.98px) {
+  .app-topbar { margin-bottom: 0.5rem; }
+  .app-navbar .nav-link.active { box-shadow: none; }
+}
+@media (max-width: 767.98px) {
+  .panel { padding: 1.15rem; }
+  .panel-head, .table-footer, .filter-bar { padding-inline: 1.15rem; }
+  .history-table tbody tr:first-child { background: #f7f2de; box-shadow: inset 3px 0 0 var(--civic-marigold); }
+  .history-table tbody tr:first-child td { background: transparent; box-shadow: none; }
+  .history-table td:first-child { white-space: normal; }
+  .resident-focus { padding: 1.25rem; }
+  .stub-side { border-left: 0; border-top: 1px dashed #c3c9bd; }
+  .auth-layout, .auth-layout.auth-wide { grid-template-columns: minmax(0, 1fr); }
+  .service-item { padding-inline: 1.15rem; }
+}
+@media (prefers-reduced-motion: reduce) { .account-caret { transition: none; } }
+
+/* --- Follow-up fixes from review --- */
+body.area-public .app-main.container, body.area-error .app-main.container { max-width: 1320px; }
+.app-navbar-public .navbar-nav:empty { display: none; }
+.home-hero h1 { max-width: 20ch; }
+.account-menu { min-width: 18rem; }
+.account-who span { overflow-wrap: anywhere; word-break: normal; }
+.resident-focus { grid-template-columns: minmax(13rem, 0.7fr) minmax(0, 1.5fr); }
+.pipeline-item a { align-items: center; gap: 0.6rem; }
+.pipeline-item a::before { margin-top: 0; }
+.pipeline-label { font-size: 0.9rem; font-weight: 600; }
+.pipeline-count { font-size: 1.4rem; }
+.tracker-label { max-width: none; padding-right: 0.5rem; font-size: 0.88rem; }
+@media (max-width: 767.98px) {
+  .history-table tbody tr:first-child td:first-child { box-shadow: none; }
+  .resident-focus { grid-template-columns: 1fr; }
+}
+.app-navbar-public .nav-actions { margin-left: auto; }
+.home-hero h1 { max-width: 24ch; font-size: clamp(2.2rem, 1.5rem + 2.4vw, 3.3rem); }
+.staff-queue .panel-head { padding-top: 1rem; }

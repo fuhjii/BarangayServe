@@ -1,6 +1,6 @@
 <?php
 /**
- * layout.php: the page shell (header, navigation, messages, footer) and error pages.
+ * layout.php: the page shell (header, navigation, messages) and error pages.
  *
  * Every page follows this pattern:
  *
@@ -65,13 +65,13 @@ function page_start(string $title, array $options = []): void
     render_navbar($area, $active);
 
     echo '<main id="main" class="app-main container" tabindex="-1">' . "\n";
+    render_topbar($area, $active);
     render_flash_messages();
 }
 
 function page_end(): void
 {
     echo "</main>\n";
-    render_footer();
     echo '<script src="' . e(asset('vendor/bootstrap/js/bootstrap.bundle.min.js')) . '"></script>' . "\n";
     echo '<script src="' . e(asset('js/app.js')) . '"></script>' . "\n";
     echo "</body>\n</html>\n";
@@ -86,8 +86,43 @@ function nav_link(string $path, string $label, string $icon, string $key, string
     $isActive = ($key === $active);
     return '<li class="nav-item"><a class="nav-link' . ($isActive ? ' active' : '') . '"'
         . ($isActive ? ' aria-current="page"' : '')
-        . ' href="' . e(url($path)) . '"><span class="nav-link-label">'
-        . e($label) . '</span></a></li>';
+        . ' href="' . e(url($path)) . '">'
+        . ($icon !== '' ? '<i class="bi ' . e($icon) . ' nav-link-icon" aria-hidden="true"></i>' : '')
+        . '<span class="nav-link-label">' . e($label) . '</span></a></li>';
+}
+
+/**
+ * The slim bar above the page content in the resident and staff areas.
+ * The account menu lives here (top right) so it always opens downward, in plain view.
+ */
+function render_topbar(string $area, string $active): void
+{
+    if (!in_array($area, ['resident', 'staff'], true)) {
+        return;
+    }
+    $user = current_user();
+    if ($user === null) {
+        return;
+    }
+    $fullName  = trim((string) $user['full_name']);
+    $firstName = explode(' ', $fullName)[0];
+    $initial   = function_exists('mb_substr') ? mb_strtoupper(mb_substr($firstName, 0, 1)) : strtoupper(substr($firstName, 0, 1));
+
+    echo '<div class="app-topbar">';
+    echo '<div class="dropdown">';
+    echo '<button class="account-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account menu for ' . e($fullName) . '">';
+    echo '<span class="account-avatar" aria-hidden="true">' . e($initial) . '</span>';
+    echo '<span class="account-name">' . e($firstName) . '</span>';
+    echo '<i class="bi bi-chevron-down account-caret" aria-hidden="true"></i>';
+    echo '</button>';
+    echo '<ul class="dropdown-menu dropdown-menu-end account-menu">';
+    echo '<li class="account-who"><strong>' . e($fullName) . '</strong><span>' . e($user['email']) . '</span></li>';
+    echo '<li><hr class="dropdown-divider"></li>';
+    echo '<li><a class="dropdown-item' . ($active === 'account' ? ' active' : '') . '" href="' . e(url('account.php')) . '">'
+        . '<i class="bi bi-person" aria-hidden="true"></i>My account</a></li>';
+    echo '<li><form method="post" action="' . e(url('logout.php')) . '">' . csrf_field()
+        . '<button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right" aria-hidden="true"></i>Log out</button></form></li>';
+    echo '</ul></div></div>' . "\n";
 }
 
 function render_navbar(string $area, string $active): void
@@ -108,7 +143,7 @@ function render_navbar(string $area, string $active): void
     echo '<a class="navbar-brand" href="' . e(url($homePath)) . '">';
     echo '<img src="' . e(asset('img/logo.svg')) . '" alt="" width="44" height="44">';
     echo '<span class="brand-text"><span class="brand-name">' . e(app_name()) . '</span>';
-    echo '<span class="brand-sub">' . e($isStaff ? 'Staff area, ' . barangay_name() : barangay_name()) . '</span></span>';
+    echo '<span class="brand-sub">' . e($isStaff ? 'Staff, ' . barangay_name() : barangay_name()) . '</span></span>';
     echo '</a>';
 
     if ($area === 'error') {
@@ -122,11 +157,6 @@ function render_navbar(string $area, string $active): void
     echo '<div class="collapse navbar-collapse" id="mainNav">';
 
     // Links
-    if ($area === 'resident') {
-        echo '<p class="area-name">Resident area</p>';
-    } elseif ($isStaff) {
-        echo '<p class="area-name">Staff workspace</p>';
-    }
     echo '<ul class="navbar-nav me-auto mb-2 mb-lg-0">';
     if ($area === 'resident') {
         echo nav_link('resident/dashboard.php', 'Dashboard', 'bi-house-door', 'dashboard', $active);
@@ -136,27 +166,11 @@ function render_navbar(string $area, string $active): void
         echo nav_link('staff/dashboard.php', 'Dashboard', 'bi-house-door', 'dashboard', $active);
         echo nav_link('staff/requests.php', 'Requests', 'bi-list-ul', 'requests', $active);
         echo nav_link('staff/services.php', 'Services', 'bi-card-checklist', 'services', $active);
-    } else {
-        echo nav_link('index.php', 'Home', 'bi-house-door', 'home', $active);
     }
     echo '</ul>';
 
-    // Right side: account menu, or log-in links
-    if ($user !== null) {
-        $firstName = explode(' ', trim($user['full_name']))[0];
-        echo '<div class="dropdown">';
-        echo '<button class="btn account-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">';
-        echo '<span>' . e($firstName) . '</span></button>';
-        echo '<ul class="dropdown-menu dropdown-menu-end">';
-        echo '<li><span class="dropdown-item-text account-who"><strong>' . e($user['full_name']) . '</strong><br>'
-            . '<span class="text-body-secondary">' . e($user['email']) . '</span></span></li>';
-        echo '<li><hr class="dropdown-divider"></li>';
-        echo '<li><a class="dropdown-item' . ($active === 'account' ? ' active' : '') . '" href="' . e(url('account.php')) . '">'
-            . 'My account</a></li>';
-        echo '<li><form method="post" action="' . e(url('logout.php')) . '">' . csrf_field()
-            . '<button type="submit" class="dropdown-item">Log out</button></form></li>';
-        echo '</ul></div>';
-    } else {
+    // Right side: log-in links for visitors. Signed-in users get their account menu in the top bar.
+    if ($user === null) {
         echo '<div class="d-flex flex-wrap gap-2 nav-actions">';
         echo '<a class="btn btn-outline-primary" href="' . e(url('login.php')) . '">Log in</a>';
         echo '<a class="btn btn-primary" href="' . e(url('register.php')) . '">Create account</a>';
@@ -167,7 +181,7 @@ function render_navbar(string $area, string $active): void
 }
 
 // ---------------------------------------------------------------------------
-// Messages (flash) and footer
+// Messages (flash)
 // ---------------------------------------------------------------------------
 
 /** Show the messages saved with flash() by the previous page. */
@@ -188,19 +202,6 @@ function render_flash_messages(): void
         echo '</div>';
     }
     echo '</div>';
-}
-
-function render_footer(): void
-{
-    $hours = trim((string) config('office_hours', ''));
-    echo '<footer class="app-footer"><div class="container">';
-    echo '<p class="mb-1"><strong>' . e(app_name()) . '</strong> for ' . e(barangay_name()) . '. '
-        . 'Barangay staff review every request and decide on it. This website only records and tracks it.</p>';
-    if ($hours !== '') {
-        echo '<p class="mb-1">Barangay office hours: ' . e($hours) . '.</p>';
-    }
-    echo '<p class="mb-0 text-body-secondary">A Software Engineering 1 research project of Universidad de Dagupan.</p>';
-    echo '</div></footer>' . "\n";
 }
 
 // ---------------------------------------------------------------------------

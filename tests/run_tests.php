@@ -700,7 +700,7 @@ check('History ids and times only increase (chronological)', $ids === $sorted);
 $r = $A->get("/resident/history.php?id=$id1");
 $pos = [];
 foreach (['Request received.', 'Request is being checked.', 'Documents are being prepared by the secretary.', 'Waiting for the barangay captain to sign.', 'Resident did not collect the document yet.', 'Document received by the resident.'] as $txt) { $pos[] = strpos($r->body, $txt); }
-check('The resident sees the full history with every remark, oldest first', !in_array(false, $pos, true) && $pos === array_values(array_filter($pos)) && $pos === (function ($p) { sort($p); return $p; })($pos));
+check('The resident sees the full history with every remark, newest first', !in_array(false, $pos, true) && $pos === array_values(array_filter($pos)) && $pos === (function ($p) { rsort($p); return $p; })($pos));
 check('The resident history does NOT show which staff member made a change', !has($r->body, 'Updated by') && !has($r->body, 'Sam Staff'));
 check('The staff history shows who made each change', has($S->get("/staff/history.php?id=$id1")->body, 'Updated by') && has($S->body, 'Sam Staff'));
 $r = $A->get("/resident/request.php?id=$id1");

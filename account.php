@@ -62,7 +62,7 @@ $showProfilePost  = is_post() && post_text('form') === 'profile';
 $showPasswordPost = is_post() && post_text('form') === 'password';
 
 page_start('My account', ['area' => $area, 'active' => 'account']);
-echo page_header('My account', 'Your details and password.', '', [
+echo page_header('My account', '', '', [
     [$area === 'staff' ? 'Dashboard' : 'Dashboard', dashboard_path($user['role'])],
     ['My account', null],
 ]);

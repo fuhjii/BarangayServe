@@ -181,7 +181,7 @@ function add_history_entry(PDO $pdo, int $requestId, string $status, string $typ
     )->execute([$requestId, $status, $type, ($remark === null || $remark === '') ? null : $remark, $userId, $when]);
 }
 
-/** The full history of one request, oldest first (so it reads like a logbook). */
+/** The full history of one request, newest first (the latest update is on top). */
 function get_request_history(int $requestId): array
 {
     $stmt = db()->prepare(
@@ -190,7 +190,7 @@ function get_request_history(int $requestId): array
            FROM request_history h
            JOIN users u ON u.id = h.changed_by
           WHERE h.request_id = ?
-          ORDER BY h.created_at ASC, h.id ASC'
+          ORDER BY h.created_at DESC, h.id DESC'
     );
     $stmt->execute([$requestId]);
     return $stmt->fetchAll();

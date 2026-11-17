@@ -13,9 +13,7 @@ if ($request === null) {
 $history = get_request_history($requestId);
 
 page_start('History of ' . $request['reference_number'], ['area' => 'staff', 'active' => 'requests']);
-echo page_header('Request history', 'Every status change and remark, oldest first. History lines are never changed or deleted.',
-    '<a class="btn btn-outline-primary" href="' . e(url('staff/request.php') . '?id=' . $requestId) . '">Back to the request</a>',
-    [['Dashboard', 'staff/dashboard.php'], ['Requests', 'staff/requests.php'],
+echo page_header('History', 'Newest first. Entries are never edited or deleted.', '', [['Dashboard', 'staff/dashboard.php'], ['Requests', 'staff/requests.php'],
      [$request['reference_number'], 'staff/request.php?id=' . $requestId], ['History', null]]);
 ?>
 <?= reference_stub($request) ?>

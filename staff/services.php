@@ -22,7 +22,7 @@ if (is_post()) {
 $services = get_services_for_staff();
 
 page_start('Services', ['area' => 'staff', 'active' => 'services']);
-echo page_header('Services', 'The services residents can request, and the questions each one asks.',
+echo page_header('Services', '',
     '<a class="btn btn-primary" href="' . e(url('staff/service_edit.php')) . '">Add a service</a>',
     [['Dashboard', 'staff/dashboard.php'], ['Services', null]]);
 ?>

@@ -12,22 +12,20 @@ if ($request === null) {
 }
 
 page_start('Request submitted', ['area' => 'resident', 'active' => 'requests']);
-echo page_header('Your request was submitted', 'Please keep your reference number. You need it when you ask the barangay about this request.');
+echo page_header('Request submitted', 'Keep your reference number. You will need it at the barangay hall.');
 ?>
 <?= reference_stub($request, true) ?>
 
 <section class="panel" aria-labelledby="next-title">
   <h2 id="next-title" class="panel-title">What happens next</h2>
   <ol class="next-steps">
-    <li>Barangay staff will check your request. The status will change to <strong>Under Review</strong>.</li>
-    <li>Staff prepare your document or service (<strong>Processing</strong>).</li>
-    <li>When it is <strong>Ready for Pickup</strong>, go to <?= e((string) config('office_location', 'the barangay hall')) ?> and show your reference number.</li>
-    <li>You can log in at any time to see the status and history of this request.</li>
+    <li>Staff review your request (<strong>Under Review</strong>).</li>
+    <li>They prepare it (<strong>Processing</strong>).</li>
+    <li>When it is <strong>Ready for Pickup</strong>, bring your reference number to <?= e((string) config('office_location', 'the barangay hall')) ?>.</li>
   </ol>
   <div class="form-actions">
-    <a class="btn btn-primary" href="<?= e(url('resident/request.php') . '?id=' . (int) $request['id']) ?>">View request details</a>
+    <a class="btn btn-primary" href="<?= e(url('resident/request.php') . '?id=' . (int) $request['id']) ?>">View details</a>
     <a class="btn btn-outline-primary" href="<?= e(url('resident/requests.php')) ?>">My requests</a>
-    <a class="btn btn-outline-secondary" href="<?= e(url('resident/services.php')) ?>">Request another service</a>
   </div>
 </section>
 <?php
