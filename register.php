@@ -67,7 +67,7 @@ page_start('Create an account', ['area' => 'public']);
     <form method="post" action="<?= e(url('register.php')) ?>" novalidate>
       <?= csrf_field() ?>
       <?= form_input('full_name', 'Full name', $errors, [
-          'value' => old('full_name'), 'required' => true, 'maxlength' => 100, 'autocomplete' => 'name',
+          'value' => old('full_name'), 'required' => true, 'maxlength' => 100, 'autocomplete' => 'name', 'placeholder' => 'Juan M. Dela Cruz',
           'help' => 'As it appears on your ID.',
       ]) ?>
       <?= form_input('email', 'Email address', $errors, [

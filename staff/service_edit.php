@@ -30,7 +30,7 @@ if (is_post()) {
         }
         if (!$errors) {
             if ($isNew) {
-                flash('success', 'The service was added. Now add the questions residents must answer for it (optional).');
+                flash('success', 'The service was added. Now add the requirements residents must provide for it (optional).');
                 redirect('staff/service_fields.php?service=' . $savedId);
             }
             flash('success', 'The service was saved.');

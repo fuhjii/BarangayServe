@@ -35,10 +35,10 @@ echo page_header('Services', '',
             <h2><?= e($s['name']) ?>
               <?php if (!$active): ?><span class="entry-tag">Hidden from residents</span><?php endif; ?></h2>
             <?php if ($s['description'] !== ''): ?><p><?= e($s['description']) ?></p><?php endif; ?>
-            <p class="service-meta"><?= e(plural((int) $s['field_count'], 'extra question')) ?> &middot; <?= e(plural((int) $s['request_count'], 'request')) ?> so far &middot; display order <?= (int) $s['sort_order'] ?></p>
+            <p class="service-meta"><?= e(plural((int) $s['field_count'], 'requirement')) ?> &middot; <?= e(plural((int) $s['request_count'], 'request')) ?> so far &middot; display order <?= (int) $s['sort_order'] ?></p>
           </div>
           <div class="row-actions">
-            <a class="btn btn-sm btn-outline-primary" href="<?= e(url('staff/service_fields.php') . '?service=' . (int) $s['id']) ?>">Questions<span class="visually-hidden"> of <?= e($s['name']) ?></span></a>
+            <a class="btn btn-sm btn-outline-primary" href="<?= e(url('staff/service_fields.php') . '?service=' . (int) $s['id']) ?>">Requirements<span class="visually-hidden"> of <?= e($s['name']) ?></span></a>
             <a class="btn btn-sm btn-outline-primary" href="<?= e(url('staff/service_edit.php') . '?id=' . (int) $s['id']) ?>">Edit<span class="visually-hidden"> <?= e($s['name']) ?></span></a>
             <form method="post" action="<?= e(url('staff/services.php')) ?>"
                   <?= confirm_attr($active ? 'Hide "' . $s['name'] . '" from residents? Existing requests are not affected.' : 'Open "' . $s['name'] . '" for requests again?', $active ? 'Yes, hide it' : 'Yes, open it') ?>>

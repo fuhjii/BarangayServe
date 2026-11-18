@@ -959,3 +959,11 @@ body.area-public .app-main.container, body.area-error .app-main.container { max-
 .app-navbar-public .nav-actions { margin-left: auto; }
 .home-hero h1 { max-width: 24ch; font-size: clamp(2.2rem, 1.5rem + 2.4vw, 3.3rem); }
 .staff-queue .panel-head { padding-top: 1rem; }
+
+/* --- Round 2: tracker line joins dot to dot, empty-state padding, hero --- */
+@media (min-width: 768px) {
+  /* Dots sit at the left of each step, so the connector must run from the previous dot's edge to this dot's edge. */
+  .tracker-step:not(:first-child)::before { right: auto; left: calc(-100% + 1.65rem); width: calc(100% - 1.65rem); }
+}
+.panel-flush .empty-state { padding: 1.75rem 1.5rem; }
+.home-hero h1 { max-width: 18ch; }
