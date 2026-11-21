@@ -263,7 +263,7 @@ check('service_requests.reference_number is UNIQUE', (int) val("SELECT COUNT(*) 
 $statusType = strtolower((string) val("SELECT COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME='service_requests' AND COLUMN_NAME='status'", [$testDb]));
 check('The seven statuses, in order (five steps, then Rejected and Cancelled)', $statusType === "enum('submitted','under review','processing','ready for pickup','completed','rejected','cancelled')", $statusType);
 $svcNames = array_column(q('SELECT name FROM services ORDER BY sort_order'), 'name');
-check('The six initial services (SRS FR-03) are present', $svcNames === ['Barangay Clearance', 'Certificate of Residency', 'Certificate of Indigency', 'Certificate of Good Moral Character', 'Business-related Request', 'Other Barangay Service'], implode(' | ', $svcNames));
+check('The seven services (the six from SRS FR-03 plus Loan Clearance) are present', $svcNames === ['Barangay Clearance', 'Loan Clearance', 'Certificate of Residency', 'Certificate of Indigency', 'Certificate of Good Moral Character', 'Business-related Request', 'Other Barangay Service'], implode(' | ', $svcNames));
 check('No user accounts exist before registration', (int) val('SELECT COUNT(*) FROM users') === 0);
 
 // Static check of the source code: history is append-only
@@ -438,7 +438,7 @@ section('6. Service selection and request submission (FR-03, FR-04, FR-05)');
 // ============================================================================
 $r = $A->get('/resident/services.php');
 $allListed = true; foreach ($svcNames as $n) { if (!has($r->body, htmlspecialchars($n))) { $allListed = false; } }
-check('All six services are listed for the resident', $r->code === 200 && $allListed);
+check('All services are listed for the resident', $r->code === 200 && $allListed);
 $sidClear = serviceId('Barangay Clearance'); $sidRes = serviceId('Certificate of Residency');
 $sidInd = serviceId('Certificate of Indigency'); $sidBiz = serviceId('Business-related Request'); $sidOther = serviceId('Other Barangay Service');
 $r = $A->get("/resident/request_new.php?service=$sidBiz");
@@ -451,7 +451,7 @@ check('A service that does not exist redirects back to the service list', $r->pa
 
 $page = "/resident/request_new.php?service=$sidClear";
 $good = ['applicant_name' => 'Ana Dela Peña', 'applicant_contact' => '09171234567', 'applicant_address' => '12 Rizal Street, Purok 3',
-         'purpose' => 'Job application', 'f_date_of_birth' => '1999-04-12', 'f_civil_status' => 'Single', 'f_years_of_residency' => '12'];
+         'purpose' => 'Job application', 'f_date_of_birth' => '1999-04-12', 'f_gender' => 'Male', 'f_civil_status' => 'Single', 'f_years_of_residency' => '12'];
 $nReq = (int) val('SELECT COUNT(*) FROM service_requests');
 
 $r = $A->form($page, $page, ['purpose' => '', 'applicant_name' => '', 'applicant_contact' => '', 'applicant_address' => '']);
@@ -500,12 +500,12 @@ check('Another resident cannot reuse that form token', (int) val('SELECT COUNT(*
 // Second request by A, third by B
 $page2 = "/resident/request_new.php?service=$sidRes";
 $r = $A->form($page2, $page2, ['applicant_name' => 'Ana Dela Peña', 'applicant_contact' => '09171234567', 'applicant_address' => '12 Rizal Street, Purok 3',
-    'purpose' => 'School enrollment', 'f_years_of_residency' => '8', 'f_residence_type' => 'Homeowner']);
+    'purpose' => 'School enrollment', 'f_age' => '27', 'f_gender' => 'Male', 'f_civil_status' => 'Single', 'f_years_of_residency' => '8', 'f_residence_type' => 'Homeowner']);
 $ref2 = $r->ref();
 check('Second request gets the next number (00002)', $ref2 === "BR-$year-00002", $ref2);
 $page3 = "/resident/request_new.php?service=$sidInd";
 $r = $B->form($page3, $page3, ['applicant_name' => 'Ben Reyes', 'applicant_contact' => '09181234567', 'applicant_address' => '45 Mabini Avenue',
-    'purpose' => 'Medical assistance', 'f_household_members' => '5', 'f_assistance_needed' => 'Medical or hospital']);
+    'purpose' => 'Medical assistance', 'f_age' => '34', 'f_gender' => 'Male', 'f_household_members' => '5', 'f_assistance_needed' => 'Medical or hospital']);
 $ref3 = $r->ref();
 check('Request by another resident gets 00003', $ref3 === "BR-$year-00003", $ref3);
 $id1 = (int) val('SELECT id FROM service_requests WHERE reference_number = ?', [$ref1]);
@@ -807,6 +807,14 @@ check('A hidden service cannot be requested any more', $r->path === '/resident/s
 check('...but the old request is still visible to its owner', has($B->get('/resident/requests.php')->body, 'Certificate of Solo Parent'));
 $r = $B->post('/staff/services.php', ['csrf_token' => $B->csrf() ?: 'x', 'service_id' => (string) $sidClear, 'active' => '0']);
 check('A resident cannot change services (403) and nothing changed', $r->code === 403 && (int) val('SELECT is_active FROM services WHERE id = ?', [$sidClear]) === 1);
+$lcId = serviceId('Loan Clearance');
+check('Loan Clearance exists with the details the barangay asks for', $lcId > 0 && (int) val("SELECT COUNT(*) FROM service_fields WHERE service_id = ? AND field_key IN ('age','gender','civil_status','lending_institution')", [$lcId]) === 4);
+check('Every service has "what to bring" filled in except Other', (int) val("SELECT COUNT(*) FROM services WHERE name <> 'Other Barangay Service' AND (pickup_requirements IS NULL OR pickup_requirements = '') AND name NOT LIKE 'Certificate of Solo%'") === 0);
+$lsBody = $B->get('/resident/services.php')->body;
+check('Residents see what to bring on the services list', has($lsBody, 'Bring when you pick it up') && has($lsBody, 'DTI registration'));
+$S->get("/staff/service_edit.php?id=$sidClear");
+$r = $S->form("/staff/service_edit.php?id=$sidClear", "/staff/service_edit.php?id=$sidClear", ['name' => 'Barangay Clearance', 'description' => 'Test description.', 'pickup_requirements' => 'Valid ID and Cedula', 'sort_order' => '10', 'is_active' => '1']);
+check('Staff can change what to bring', val('SELECT pickup_requirements FROM services WHERE id = ?', [$sidClear]) === 'Valid ID and Cedula');
 
 // ============================================================================
 section('12. Database integrity and the optional history guard (7.2, 7.4)');

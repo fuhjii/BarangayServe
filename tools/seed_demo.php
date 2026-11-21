@@ -81,13 +81,13 @@ function demo_request(int $residentId, string $serviceName, string $purpose, arr
 $plan = [
     // [resident email, service, purpose, answers, how many times staff move it forward]
     ['resident1' . DEMO_DOMAIN, 'Barangay Clearance', 'Employment requirement (demo)',
-        ['f_date_of_birth' => '1999-04-12', 'f_civil_status' => 'Single', 'f_years_of_residency' => '12'], 3],
+        ['f_date_of_birth' => '1999-04-12', 'f_gender' => 'Male', 'f_civil_status' => 'Single', 'f_years_of_residency' => '12'], 3],
     ['resident1' . DEMO_DOMAIN, 'Certificate of Residency', 'School enrollment (demo)',
-        ['f_years_of_residency' => '8', 'f_residence_type' => 'Homeowner'], 2],
+        ['f_age' => '27', 'f_gender' => 'Male', 'f_civil_status' => 'Single', 'f_years_of_residency' => '8', 'f_residence_type' => 'Homeowner'], 2],
     ['resident1' . DEMO_DOMAIN, 'Certificate of Good Moral Character', 'Scholarship application (demo)',
-        ['f_years_of_residency' => '8', 'f_requesting_organization' => 'Sample University (demo)'], 0],
+        ['f_age' => '27', 'f_gender' => 'Male', 'f_civil_status' => 'Single', 'f_years_of_residency' => '8', 'f_requesting_organization' => 'Sample University (demo)'], 0],
     ['resident2' . DEMO_DOMAIN, 'Certificate of Indigency', 'Medical assistance (demo)',
-        ['f_household_members' => '5', 'f_assistance_needed' => 'Medical or hospital'], 4],
+        ['f_age' => '34', 'f_gender' => 'Female', 'f_household_members' => '5', 'f_assistance_needed' => 'Medical or hospital'], 4],
     ['resident2' . DEMO_DOMAIN, 'Business-related Request', 'New sari-sari store (demo)',
         ['f_request_kind' => 'New business clearance', 'f_business_name' => 'Demo Sari-Sari Store',
          'f_business_address' => '456 Example Road (demo)', 'f_nature_of_business' => 'Retail store'], 1],

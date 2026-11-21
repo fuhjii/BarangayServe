@@ -60,6 +60,10 @@ echo page_header($isNew ? 'Add a service' : 'Edit service', '', '', [
         'value' => $val('description', ''), 'rows' => 3, 'maxlength' => 255,
         'help' => 'One or two sentences that tell residents what this service is for.',
     ]) ?>
+    <?= form_input('pickup_requirements', 'What to bring when picking it up', $errors, [
+        'value' => $val('pickup_requirements', ''), 'maxlength' => 255,
+        'help' => 'For example: Valid ID, Cedula, and ₱100 fee. Residents see this before they apply, and it fills in the "Ready for Pickup" remark.',
+    ]) ?>
     <?= form_input('sort_order', 'Display order', $errors, [
         'type' => 'number', 'value' => $val('sort_order', '100'), 'required' => true, 'min' => '0', 'max' => '9999', 'inputmode' => 'numeric',
         'help' => 'Smaller numbers are shown first.',

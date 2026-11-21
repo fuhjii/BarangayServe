@@ -116,7 +116,7 @@ function previous_status(string $status): ?string
  * A ready-made remark staff can keep or edit when they move a request forward.
  * The wording follows the examples in SRS FR-08.
  */
-function suggested_remark(string $status): string
+function suggested_remark(string $status, string $bring = ''): string
 {
     switch ($status) {
         case 'Under Review':
@@ -125,6 +125,10 @@ function suggested_remark(string $status): string
             return 'Request is being processed.';
         case 'Ready for Pickup':
             $text  = 'Document is ready for pickup at ' . (string) config('office_location', 'the barangay hall') . '.';
+            $bring = rtrim(trim($bring), '.');
+            if ($bring !== '') {
+                $text .= ' Please bring: ' . $bring . '.';
+            }
             $hours = trim((string) config('office_hours', ''));
             return $hours !== '' ? $text . ' Office hours: ' . $hours . '.' : $text;
         case 'Completed':
@@ -146,7 +150,7 @@ function suggested_remark(string $status): string
  * Rejected and Cancelled requests are closed: no choices at all.
  * Returns a list of ['action', 'target', 'remark_required', 'default_remark'].
  */
-function staff_action_choices(string $status): array
+function staff_action_choices(string $status, string $bring = ''): array
 {
     $choices = [];
     if (is_closed_status($status)) {
@@ -155,7 +159,7 @@ function staff_action_choices(string $status): array
 
     $next = next_status($status);
     if ($next !== null) {
-        $choices[] = ['action' => 'advance', 'target' => $next, 'remark_required' => false, 'default_remark' => suggested_remark($next)];
+        $choices[] = ['action' => 'advance', 'target' => $next, 'remark_required' => false, 'default_remark' => suggested_remark($next, $bring)];
     }
 
     if (in_array($status, REJECTABLE_STATUSES, true)) {
@@ -473,6 +477,14 @@ function find_request_for_resident(int $requestId, int $userId): ?array
 }
 
 /** One request for staff, together with the resident's account details. */
+/** What the resident should bring to collect this request (set per service by staff). Empty when not set. */
+function request_pickup_requirements(int $requestId): string
+{
+    $stmt = db()->prepare('SELECT s.pickup_requirements FROM service_requests r JOIN services s ON s.id = r.service_id WHERE r.id = ?');
+    $stmt->execute([$requestId]);
+    return trim((string) $stmt->fetchColumn());
+}
+
 function find_request_for_staff(int $requestId): ?array
 {
     $stmt = db()->prepare(

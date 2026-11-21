@@ -25,7 +25,7 @@ if (is_post()) {
 
     // "Move forward" with an empty remark: save the standard remark (the examples in SRS FR-08).
     if ($action === 'advance' && $remark === '' && next_status($expected) !== null) {
-        $remark = suggested_remark((string) next_status($expected));
+        $remark = suggested_remark((string) next_status($expected), request_pickup_requirements($requestId));
     }
 
     $result = staff_update_request($requestId, (int) $user['id'], $action, $expected, $remark);
@@ -45,7 +45,8 @@ $request = find_request_for_staff($requestId);
 $history = get_request_history($requestId);
 $answers = decode_request_answers($request['request_data']);
 $status  = $request['status'];
-$choices = staff_action_choices($status);
+$bring   = request_pickup_requirements($requestId);
+$choices = staff_action_choices($status, $bring);
 $chosen  = is_post() ? post_text('action') : '';
 if ($choices && !in_array($chosen, array_column($choices, 'action'), true)) {
     $chosen = $choices[0]['action'];
@@ -131,7 +132,7 @@ echo page_header('Request ' . $request['reference_number'], '', '', [
             'maxlength' => 500,
             'hide_optional' => true,
             'help'      => 'The resident can read this. Required to reject or move back.'
-                . ($next !== null ? ' Moving forward with this empty saves: "' . suggested_remark($next) . '"' : ''),
+                . ($next !== null ? ' Moving forward with this empty saves: "' . suggested_remark($next, $bring) . '"' : ''),
         ]) ?>
 
         <div class="form-actions">

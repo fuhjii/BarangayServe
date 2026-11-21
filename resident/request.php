@@ -47,6 +47,8 @@ echo page_header('Request details', '', '', [
       <p>Go to <?= e((string) config('office_location', 'the barangay hall')) ?> and show
          <span class="fw-bold"><?= e($request['reference_number']) ?></span>.
          <?php $hours = trim((string) config('office_hours', '')); echo $hours !== '' ? e($hours) . '.' : ''; ?></p>
+      <?php $bringList = trim((string) ((get_service((int) $request['service_id']) ?? [])['pickup_requirements'] ?? '')); ?>
+      <?php if ($bringList !== ''): ?><p><strong>Please bring:</strong> <?= e(rtrim($bringList, '.')) ?>.</p><?php endif; ?>
     </div>
   </div>
 <?php endif; ?>

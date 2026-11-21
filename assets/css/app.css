@@ -1011,3 +1011,17 @@ body.area-public .app-main.container, body.area-error .app-main.container { max-
 .cancel-box[open] summary { color: #8a2a1c; }
 .btn-cancel { background: #b8432f; border-color: #b8432f; color: #fff; }
 .btn-cancel:hover, .btn-cancel:focus-visible { background: #9c3524; border-color: #9c3524; color: #fff; }
+
+/* ---- Round 5: what to bring ---- */
+.service-bring,
+.bring-note {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  margin: .6rem 0 0;
+  font-size: .9rem;
+  color: var(--bs-secondary-color, #5b6b66);
+}
+.service-bring .bi,
+.bring-note .bi { color: #b8860b; margin-top: .15rem; flex: none; }
+.bring-note { padding: .6rem .8rem; border-radius: .5rem; background: rgba(224,168,32,.12); color: inherit; margin-bottom: 1rem; }

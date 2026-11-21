@@ -24,7 +24,7 @@ const FIELD_TYPES = [
 function get_active_services(): array
 {
     return db()->query(
-        'SELECT id, name, description FROM services WHERE is_active = 1 ORDER BY sort_order, name'
+        'SELECT id, name, description, pickup_requirements FROM services WHERE is_active = 1 ORDER BY sort_order, name'
     )->fetchAll();
 }
 
@@ -148,6 +148,7 @@ function validate_service_form(array $input, int $serviceId = 0): array
     $name   = clean_text(trim((string) ($input['name'] ?? '')));
     $desc   = clean_text(trim((string) ($input['description'] ?? '')));
     $order  = trim((string) ($input['sort_order'] ?? '100'));
+    $bring  = clean_text(trim((string) ($input['pickup_requirements'] ?? '')));
 
     if (text_length($name) < 3 || text_length($name) > 100) {
         $errors['name'] = 'The service name must be between 3 and 100 characters.';
@@ -161,10 +162,13 @@ function validate_service_form(array $input, int $serviceId = 0): array
     if (text_length($desc) > 255) {
         $errors['description'] = 'The description must not be longer than 255 characters.';
     }
+    if (text_length($bring) > 255) {
+        $errors['pickup_requirements'] = 'This must not be longer than 255 characters.';
+    }
     if (!preg_match('/^[0-9]{1,4}$/', $order)) {
         $errors['sort_order'] = 'The display order must be a whole number from 0 to 9999.';
     }
-    $data = ['name' => $name, 'description' => $desc, 'sort_order' => (int) $order, 'is_active' => !empty($input['is_active']) ? 1 : 0];
+    $data = ['name' => $name, 'description' => $desc, 'pickup_requirements' => $bring, 'sort_order' => (int) $order, 'is_active' => !empty($input['is_active']) ? 1 : 0];
     return [$errors, $data];
 }
 
@@ -174,12 +178,12 @@ function save_service(int $id, array $data): int
     $pdo = db();
     $now = now_sql();
     if ($id === 0) {
-        $pdo->prepare('INSERT INTO services (name, description, is_active, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)')
-            ->execute([$data['name'], $data['description'], $data['is_active'], $data['sort_order'], $now, $now]);
+        $pdo->prepare('INSERT INTO services (name, description, pickup_requirements, is_active, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            ->execute([$data['name'], $data['description'], $data['pickup_requirements'] !== '' ? $data['pickup_requirements'] : null, $data['is_active'], $data['sort_order'], $now, $now]);
         return (int) $pdo->lastInsertId();
     }
-    $pdo->prepare('UPDATE services SET name = ?, description = ?, is_active = ?, sort_order = ?, updated_at = ? WHERE id = ?')
-        ->execute([$data['name'], $data['description'], $data['is_active'], $data['sort_order'], $now, $id]);
+    $pdo->prepare('UPDATE services SET name = ?, description = ?, pickup_requirements = ?, is_active = ?, sort_order = ?, updated_at = ? WHERE id = ?')
+        ->execute([$data['name'], $data['description'], $data['pickup_requirements'] !== '' ? $data['pickup_requirements'] : null, $data['is_active'], $data['sort_order'], $now, $id]);
     return $id;
 }
 

@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS services (
   id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
   name         VARCHAR(100) NOT NULL,
   description  VARCHAR(255) NOT NULL DEFAULT '',
+  pickup_requirements VARCHAR(255) NULL,
   is_active    TINYINT(1)   NOT NULL DEFAULT 1,
   sort_order   SMALLINT UNSIGNED NOT NULL DEFAULT 100,
   created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -194,21 +195,23 @@ CREATE TABLE IF NOT EXISTS login_attempts (
 
 
 -- =====================================================================
--- INITIAL DATA: the six services from SRS section 3.3 (FR-03)
+-- INITIAL DATA: the services (the six from SRS 3.3 plus Loan Clearance)
 -- =====================================================================
-INSERT IGNORE INTO services (name, description, sort_order) VALUES
+INSERT IGNORE INTO services (name, description, pickup_requirements, sort_order) VALUES
   ('Barangay Clearance',
-   'Certifies that you live in the barangay and have no pending complaint on record. Often required for employment, business permits, and government IDs.', 10),
+   'Certifies that you live in the barangay and have no pending complaint on record. Often required for employment, business permits, and government IDs.', 'Valid ID, Cedula, and ₱100 fee', 10),
+  ('Loan Clearance',
+   'Certifies that you live in the barangay. Required by lending institutions when you apply for a loan.', 'Valid ID and ₱130 fee', 15),
   ('Certificate of Residency',
-   'Certifies that you live in the barangay. Often required for school enrollment, employment, and benefit applications.', 20),
+   'Certifies that you live in the barangay. Often required for school enrollment, employment, and benefit applications.', 'Valid ID and ₱80 fee', 20),
   ('Certificate of Indigency',
-   'Certifies that your household has limited income. Used when applying for medical, educational, or legal assistance.', 30),
+   'Certifies that your household has limited income. Used when applying for medical, educational, or legal assistance. For residents of the barangay for at least six months.', 'Valid ID', 30),
   ('Certificate of Good Moral Character',
-   'Certifies that you are of good standing in the community. Often required for school, scholarship, and job applications.', 40),
+   'Certifies that you are of good standing in the community. Often required for school, scholarship, and job applications.', 'Valid ID and ₱80 fee', 40),
   ('Business-related Request',
-   'Barangay clearance or certification for a business located in the barangay.', 50),
+   'Barangay clearance or certification for a business located in the barangay.', 'DTI registration, Valid ID, and ₱330 fee', 50),
   ('Other Barangay Service',
-   'Any other barangay document or service that is not listed above. Describe what you need.', 60);
+   'Any other barangay document or service that is not listed above. Describe what you need.', NULL, 60);
 
 -- ---------------------------------------------------------------------
 -- INITIAL DATA: service-specific questions
@@ -282,3 +285,63 @@ FROM services s WHERE s.name = 'Business-related Request';
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
 SELECT s.id, 'service_description', 'Describe the service or document you need', 'textarea', 1, NULL, NULL, NULL, 'Be as specific as you can so staff can help you faster.', 10
 FROM services s WHERE s.name = 'Other Barangay Service';
+
+-- ---------------------------------------------------------------------
+-- Details the barangay asks for (age, gender, civil status, lender)
+-- ---------------------------------------------------------------------
+-- Barangay Clearance
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 25
+FROM services s WHERE s.name = 'Barangay Clearance';
+
+-- Loan Clearance
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 10
+FROM services s WHERE s.name = 'Loan Clearance';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 20
+FROM services s WHERE s.name = 'Loan Clearance';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'civil_status', 'Civil status', 'select', 1, 'Single\nMarried\nWidowed\nSeparated', NULL, NULL, NULL, 30
+FROM services s WHERE s.name = 'Loan Clearance';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'lending_institution', 'Lending institution', 'text', 1, NULL, NULL, NULL, 'Name of the bank, cooperative, or lender.', 40
+FROM services s WHERE s.name = 'Loan Clearance';
+
+-- Certificate of Residency
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 2
+FROM services s WHERE s.name = 'Certificate of Residency';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 4
+FROM services s WHERE s.name = 'Certificate of Residency';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'civil_status', 'Civil status', 'select', 1, 'Single\nMarried\nWidowed\nSeparated', NULL, NULL, NULL, 6
+FROM services s WHERE s.name = 'Certificate of Residency';
+
+-- Certificate of Indigency
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 2
+FROM services s WHERE s.name = 'Certificate of Indigency';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 4
+FROM services s WHERE s.name = 'Certificate of Indigency';
+
+-- Certificate of Good Moral Character
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 2
+FROM services s WHERE s.name = 'Certificate of Good Moral Character';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 4
+FROM services s WHERE s.name = 'Certificate of Good Moral Character';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'civil_status', 'Civil status', 'select', 1, 'Single\nMarried\nWidowed\nSeparated', NULL, NULL, NULL, 6
+FROM services s WHERE s.name = 'Certificate of Good Moral Character';
