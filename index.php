@@ -11,10 +11,6 @@ page_start('', ['area' => 'public', 'active' => 'home']);
 <section class="home-hero" aria-labelledby="home-title">
   <h1 id="home-title">Request barangay services online.</h1>
   <p class="lead">Send a request, get a reference number, and track each step.</p>
-  <div class="home-actions">
-    <a class="btn btn-primary btn-lg" href="<?= e(url('register.php')) ?>">Create an account</a>
-    <a class="btn btn-outline-primary btn-lg" href="<?= e(url('login.php')) ?>">Log in</a>
-  </div>
 </section>
 
 <section class="home-steps" aria-labelledby="how-title">

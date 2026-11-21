@@ -38,9 +38,9 @@ function validate_contact_number(string $number): ?string
     if ($number === '') {
         return 'Please enter your contact number.';
     }
-    $digits = preg_replace('/[\s().\-]/', '', $number);
-    if (!preg_match('/^\+?[0-9]{7,15}$/', (string) $digits) || text_length($number) > 20) {
-        return 'Please enter a valid contact number, for example 0917 123 4567.';
+    // Exactly 11 digits, numbers only (for example 09171234567).
+    if (!preg_match('/^[0-9]{11}$/', $number)) {
+        return 'The contact number must be exactly 11 digits, numbers only, for example 09171234567.';
     }
     return null;
 }

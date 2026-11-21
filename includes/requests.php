@@ -21,8 +21,20 @@
 // 1. STATUSES  (SRS FR-06 and Appendix C)
 // ===========================================================================
 
-/** The five statuses, in workflow order: Submitted -> Under Review -> Processing -> Ready for Pickup -> Completed */
+/** The five steps of the normal workflow: Submitted -> Under Review -> Processing -> Ready for Pickup -> Completed */
 const REQUEST_STATUSES = ['Submitted', 'Under Review', 'Processing', 'Ready for Pickup', 'Completed'];
+
+/** Two ways a request can end without being completed. Neither one can be changed afterwards. */
+const CLOSED_STATUSES = ['Rejected', 'Cancelled'];
+
+/** Every status a request can have (the workflow plus the two closed ones). */
+const ALL_STATUSES = ['Submitted', 'Under Review', 'Processing', 'Ready for Pickup', 'Completed', 'Rejected', 'Cancelled'];
+
+/** Staff can reject a request until it is ready for pickup. */
+const REJECTABLE_STATUSES = ['Submitted', 'Under Review', 'Processing'];
+
+/** A resident can cancel only while staff have not started preparing the document. */
+const CANCELLABLE_STATUSES = ['Submitted', 'Under Review'];
 
 /**
  * How each status looks and what it means to the resident.
@@ -54,11 +66,31 @@ const STATUS_DETAILS = [
         'icon' => 'bi-check-circle',
         'resident_text' => 'This request is finished.',
     ],
+    'Rejected' => [
+        'slug' => 'rejected',
+        'icon' => 'bi-x-circle',
+        'resident_text' => 'Staff could not approve this request. The reason is in the updates below.',
+    ],
+    'Cancelled' => [
+        'slug' => 'cancelled',
+        'icon' => 'bi-slash-circle',
+        'resident_text' => 'This request was cancelled.',
+    ],
 ];
 
 function is_valid_status(string $status): bool
 {
-    return in_array($status, REQUEST_STATUSES, true);
+    return in_array($status, ALL_STATUSES, true);
+}
+
+function is_closed_status(string $status): bool
+{
+    return in_array($status, CLOSED_STATUSES, true);
+}
+
+function resident_can_cancel(string $status): bool
+{
+    return in_array($status, CANCELLABLE_STATUSES, true);
 }
 
 /** Position of a status in the workflow: 0 for Submitted ... 4 for Completed (-1 if unknown). */
@@ -105,23 +137,30 @@ function suggested_remark(string $status): string
  * WHAT MAY STAFF DO WITH A REQUEST THAT CURRENTLY HAS $status?
  *
  *   advance : move forward ONE step (the normal flow). Remark is optional.
- *   remark  : add a remark and keep the status. Remark is required.
+ *   reject  : refuse the request (until it is ready for pickup). The reason is required
+ *             and the resident can read it. A rejected request is closed for good.
  *   correct : move back ONE step to fix a mistake. Remark is required, and the
  *             history marks the entry as a "correction" so it is easy to audit.
  *
  * Skipping steps is not allowed, so every request shows the same, consistent path.
+ * Rejected and Cancelled requests are closed: no choices at all.
  * Returns a list of ['action', 'target', 'remark_required', 'default_remark'].
  */
 function staff_action_choices(string $status): array
 {
     $choices = [];
+    if (is_closed_status($status)) {
+        return $choices;
+    }
 
     $next = next_status($status);
     if ($next !== null) {
         $choices[] = ['action' => 'advance', 'target' => $next, 'remark_required' => false, 'default_remark' => suggested_remark($next)];
     }
 
-    $choices[] = ['action' => 'remark', 'target' => $status, 'remark_required' => true, 'default_remark' => ''];
+    if (in_array($status, REJECTABLE_STATUSES, true)) {
+        $choices[] = ['action' => 'reject', 'target' => 'Rejected', 'remark_required' => true, 'default_remark' => ''];
+    }
 
     $previous = previous_status($status);
     if ($previous !== null) {
@@ -276,7 +315,7 @@ function find_request_by_token(string $token, int $userId): ?array
  * Staff change the status and/or add a remark. The request row and the new history
  * line are saved together in ONE transaction.
  *
- *   $action         : 'advance' | 'remark' | 'correct'   (see staff_action_choices)
+ *   $action         : 'advance' | 'reject' | 'correct'   (see staff_action_choices)
  *   $expectedStatus : the status the staff member SAW on the page. If someone else
  *                     changed the request in the meantime, the update is refused instead
  *                     of silently skipping a step.
@@ -289,14 +328,14 @@ function staff_update_request(int $requestId, int $staffId, string $action, stri
         return ['ok' => false, 'error' => $error, 'field' => $field, 'status' => null, 'message' => null];
     };
 
-    if (!in_array($action, ['advance', 'remark', 'correct'], true)) {
+    if (!in_array($action, ['advance', 'reject', 'correct'], true)) {
         return $fail('Please choose what you want to do with this request.', 'action');
     }
 
     // Check the remark BEFORE touching the database.
     $remark = trim($remark);
-    if ($remark === '' && $action === 'remark') {
-        return $fail('Please write the remark you want to add.', 'remark');
+    if ($remark === '' && $action === 'reject') {
+        return $fail('Please explain why this request is rejected. The resident will read it.', 'remark');
     }
     if ($remark === '' && $action === 'correct') {
         return $fail('Please explain the correction in the remark. The resident will see it in the history.', 'remark');
@@ -321,6 +360,10 @@ function staff_update_request(int $requestId, int $staffId, string $action, stri
                 . 'The page below shows the latest information. Please check it and try again.', 'stale');
         }
 
+        if (is_closed_status($current)) {
+            return $fail('This request is already ' . strtolower($current) . ' and can no longer be changed.');
+        }
+
         if ($action === 'advance') {
             $target = next_status($current);
             $type   = 'status_change';
@@ -334,8 +377,11 @@ function staff_update_request(int $requestId, int $staffId, string $action, stri
                 return $fail('This request is at the first step and cannot go back.');
             }
         } else {
-            $target = $current;
-            $type   = 'remark';
+            if (!in_array($current, REJECTABLE_STATUSES, true)) {
+                return $fail('A request that is "' . $current . '" can no longer be rejected.');
+            }
+            $target = 'Rejected';
+            $type   = 'status_change';
         }
 
         $now = now_sql();
@@ -348,9 +394,54 @@ function staff_update_request(int $requestId, int $staffId, string $action, stri
         } elseif ($action === 'correct') {
             $message = $row['reference_number'] . ' was moved back to "' . $target . '" (correction saved in the history).';
         } else {
-            $message = 'Your remark was added to ' . $row['reference_number'] . '.';
+            $message = $row['reference_number'] . ' was rejected. The resident can read your reason.';
         }
         return ['ok' => true, 'error' => null, 'field' => null, 'status' => $target, 'message' => $message];
+    });
+}
+
+/**
+ * A resident cancels their OWN request. Allowed only while it is Submitted or Under Review.
+ * The reason is optional. The status change and the history line are saved together.
+ * Returns ['ok' => bool, 'error' => ?string, 'message' => ?string].
+ */
+function resident_cancel_request(int $requestId, int $userId, string $expectedStatus, string $reason): array
+{
+    $fail = function (string $error): array {
+        return ['ok' => false, 'error' => $error, 'message' => null];
+    };
+
+    $reason  = trim($reason);
+    $problem = validate_remark($reason, false);
+    if ($problem !== null) {
+        return $fail($problem);
+    }
+
+    return run_transaction(function (PDO $pdo) use ($requestId, $userId, $expectedStatus, $reason, $fail) {
+        // "AND user_id = ?" keeps residents away from each other's requests.
+        $stmt = $pdo->prepare('SELECT reference_number, status FROM service_requests WHERE id = ? AND user_id = ? FOR UPDATE');
+        $stmt->execute([$requestId, $userId]);
+        $row = $stmt->fetch();
+        if (!$row) {
+            return $fail('We could not find that request in your account.');
+        }
+        $current = $row['status'];
+
+        if ($current !== $expectedStatus) {
+            return $fail('This request was just updated and is now "' . $current . '". Please check it and try again.');
+        }
+        if (!resident_can_cancel($current)) {
+            return $fail($current === 'Cancelled'
+                ? 'This request is already cancelled.'
+                : 'This request can no longer be cancelled because it is "' . $current . '". Please ask the barangay office.');
+        }
+
+        $now = now_sql();
+        $pdo->prepare('UPDATE service_requests SET status = ?, updated_at = ? WHERE id = ?')
+            ->execute(['Cancelled', $now, $requestId]);
+        add_history_entry($pdo, $requestId, 'Cancelled', 'status_change', $reason !== '' ? $reason : 'Cancelled by the resident.', $userId, $now);
+
+        return ['ok' => true, 'error' => null, 'message' => $row['reference_number'] . ' was cancelled.'];
     });
 }
 
@@ -413,7 +504,7 @@ function count_requests_by_status(?int $userId = null): array
         $rows = $stmt->fetchAll();
     }
 
-    $counts = array_fill_keys(REQUEST_STATUSES, 0);
+    $counts = array_fill_keys(ALL_STATUSES, 0);
     foreach ($rows as $row) {
         $counts[$row['status']] = (int) $row['total'];
     }

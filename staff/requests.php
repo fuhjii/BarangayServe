@@ -49,7 +49,7 @@ echo page_header('Requests', '', '', [
       <label class="form-label" for="f-status">Status</label>
       <select class="form-select" id="f-status" name="status">
         <option value="">All statuses</option>
-        <?php foreach (REQUEST_STATUSES as $s): ?>
+        <?php foreach (ALL_STATUSES as $s): ?>
           <option value="<?= e($s) ?>"<?= $s === $filters['status'] ? ' selected' : '' ?>><?= e($s) ?></option>
         <?php endforeach; ?>
       </select>

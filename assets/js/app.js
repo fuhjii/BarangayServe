@@ -62,6 +62,10 @@
     var source = form.hasAttribute('data-confirm') ? form
       : (event.submitter && event.submitter.hasAttribute('data-confirm') ? event.submitter : null);
 
+    // A chosen radio button can bring its own, stronger question (for example "Reject this request?").
+    var pickedChoice = form.querySelector('input[type="radio"][data-confirm]:checked');
+    if (pickedChoice) { source = pickedChoice; }
+
     if (source && form.dataset.confirmed !== '1' && window.bootstrap) {
       event.preventDefault();
       buildConfirmDialog();

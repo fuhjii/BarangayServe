@@ -24,9 +24,9 @@ const DEMO_STAFF_PASSWORD    = 'DemoStaff123';
 const DEMO_RESIDENT_PASSWORD = 'DemoResident123';
 
 $accounts = [
-    ['Demo Staff Member',    'staff'  . DEMO_DOMAIN,      'staff',    '0900 000 0001', 'Barangay Hall (demo)',              DEMO_STAFF_PASSWORD],
-    ['Demo Resident One',    'resident1' . DEMO_DOMAIN,   'resident', '0900 000 0002', '123 Sample Street, Purok 1 (demo)',  DEMO_RESIDENT_PASSWORD],
-    ['Demo Resident Two',    'resident2' . DEMO_DOMAIN,   'resident', '0900 000 0003', '456 Example Road, Purok 2 (demo)',   DEMO_RESIDENT_PASSWORD],
+    ['Demo Staff Member',    'staff'  . DEMO_DOMAIN,      'staff',    '09000000001', 'Barangay Hall (demo)',              DEMO_STAFF_PASSWORD],
+    ['Demo Resident One',    'resident1' . DEMO_DOMAIN,   'resident', '09000000002', '123 Sample Street, Purok 1 (demo)',  DEMO_RESIDENT_PASSWORD],
+    ['Demo Resident Two',    'resident2' . DEMO_DOMAIN,   'resident', '09000000003', '456 Example Road, Purok 2 (demo)',   DEMO_RESIDENT_PASSWORD],
 ];
 
 foreach ($accounts as $a) {

@@ -47,7 +47,7 @@ $answers = decode_request_answers($request['request_data']);
 $status  = $request['status'];
 $choices = staff_action_choices($status);
 $chosen  = is_post() ? post_text('action') : '';
-if (!in_array($chosen, array_column($choices, 'action'), true)) {
+if ($choices && !in_array($chosen, array_column($choices, 'action'), true)) {
     $chosen = $choices[0]['action'];
 }
 
@@ -97,6 +97,9 @@ echo page_header('Request ' . $request['reference_number'], '', '', [
 
       <?= error_summary($errors) ?>
 
+      <?php if (!$choices): ?>
+        <p class="final-note mb-0">This request is <?= e(strtolower($status)) ?> and is closed. It can no longer be changed.</p>
+      <?php else: ?>
       <form method="post" action="<?= e(url('staff/request.php') . '?id=' . $requestId) ?>" novalidate
             data-confirm="Save this update? The resident will be able to see the new status and the remark." data-confirm-button="Yes, save update">
         <?= csrf_field() ?>
@@ -106,13 +109,13 @@ echo page_header('Request ' . $request['reference_number'], '', '', [
           <legend class="form-label">What do you want to do?</legend>
           <?php foreach ($choices as $choice): ?>
             <label class="action-choice">
-              <input class="form-check-input" type="radio" name="action" value="<?= e($choice['action']) ?>"<?= $choice['action'] === $chosen ? ' checked' : '' ?>>
+              <input class="form-check-input" type="radio" name="action" value="<?= e($choice['action']) ?>"<?= $choice['action'] === $chosen ? ' checked' : '' ?><?= $choice['action'] === 'reject' ? ' data-confirm="Reject this request? It will be closed for good, and the resident will read your reason." data-confirm-button="Yes, reject request"' : '' ?>>
               <?php if ($choice['action'] === 'advance'): ?>
                 <strong>Move forward to <?= status_badge($choice['target']) ?></strong>
                 <small>The normal next step.</small>
-              <?php elseif ($choice['action'] === 'remark'): ?>
-                <strong>Add a remark only</strong>
-                <small>The status stays "<?= e($status) ?>". A remark is required.</small>
+              <?php elseif ($choice['action'] === 'reject'): ?>
+                <strong class="choice-reject">Reject this request</strong>
+                <small>The request is closed and cannot be reopened. Your reason is required and the resident will read it.</small>
               <?php else: ?>
                 <strong>Correct a mistake: go back to <?= status_badge($choice['target']) ?></strong>
                 <small>Use this only if the status was changed by mistake. A remark is required and the history marks it as a correction.</small>
@@ -122,21 +125,19 @@ echo page_header('Request ' . $request['reference_number'], '', '', [
         </fieldset>
 
         <?php $next = next_status($status); ?>
-        <?= form_textarea('remark', 'Processing remark', $errors, [
+        <?= form_textarea('remark', 'Remark', $errors, [
             'value'     => is_post() ? old('remark') : '',
             'rows'      => 4,
             'maxlength' => 500,
-            'help'      => 'The resident can read this remark.'
-                . ($next !== null ? ' If you move forward and leave this empty, we save: "' . suggested_remark($next) . '"' : ''),
+            'hide_optional' => true,
+            'help'      => 'The resident can read this. Required to reject or move back.'
+                . ($next !== null ? ' Moving forward with this empty saves: "' . suggested_remark($next) . '"' : ''),
         ]) ?>
 
         <div class="form-actions">
           <button type="submit" class="btn btn-primary btn-block-mobile">Save update</button>
         </div>
       </form>
-
-      <?php if ($next === null): ?>
-        <p class="final-note mt-3 mb-0">This request is at the last step. You can still add a remark or correct a mistake.</p>
       <?php endif; ?>
     </section>
   </div>

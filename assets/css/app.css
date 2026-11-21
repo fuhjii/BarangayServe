@@ -967,3 +967,47 @@ body.area-public .app-main.container, body.area-error .app-main.container { max-
 }
 .panel-flush .empty-state { padding: 1.75rem 1.5rem; }
 .home-hero h1 { max-width: 18ch; }
+
+/* --- Round 3: centered sign-in cards, Rejected and Cancelled --- */
+.auth-layout, .auth-layout.auth-wide { justify-content: center; margin-inline: auto; }
+.auth-layout > .panel { width: 100%; }
+.auth-switch { justify-content: center; text-align: center; }
+
+.status-rejected  { background: #f6dcd6; color: #7a2418; }
+.status-cancelled { background: #e7e5dd; color: #4c5750; }
+.choice-reject { color: #8a2a1c; }
+.action-choice:has(input[value="reject"]:checked) { border-color: #b8432f; background: #fbeeea; }
+
+.closed-notice { border: 1px solid var(--hairline); border-left-width: 4px; border-radius: var(--r-md); background: var(--card); padding: 1.1rem 1.4rem; }
+.closed-notice p { margin: 0.3rem 0 0; color: var(--civic-muted); }
+.closed-notice .closed-reason { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid var(--hairline); color: var(--civic-ink, #1d2a24); }
+.closed-rejected  { border-left-color: #b8432f; }
+.closed-cancelled { border-left-color: #8d968f; }
+
+.cancel-box { border: 1px solid var(--hairline); border-radius: var(--r-md); background: var(--card); padding: 0.9rem 1.4rem; }
+.cancel-box summary { cursor: pointer; font-weight: 650; color: var(--civic-muted); }
+.cancel-box[open] summary { margin-bottom: 1rem; color: var(--civic-green); }
+.cancel-box .btn { margin-top: 0.25rem; }
+
+/* --- Closed requests line under the status boxes --- */
+.pipeline-closed { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem 1.5rem; margin: 0.75rem 0 0; padding: 0; font-size: 0.93rem; }
+.pipeline-closed a { color: var(--civic-muted); text-decoration: none; }
+.pipeline-closed a:hover { color: var(--civic-green); text-decoration: underline; }
+.pipeline-closed strong { color: var(--civic-green); font-weight: 700; margin-right: 0.15rem; }
+
+/* --- Round 4: cleaner hover on the closed counts, clearer cancel box --- */
+.pipeline-closed a { text-decoration: none; }
+.pipeline-closed a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-skip-ink: none; }
+.pipeline-closed strong { margin-right: 0; }
+
+.cancel-box { border-color: #e6c9c2; background: #fffaf8; }
+.cancel-box summary { display: flex; align-items: center; flex-wrap: wrap; gap: 0.2rem 0.7rem; list-style: none; cursor: pointer; color: #8a2a1c; font-weight: 650; }
+.cancel-box summary::-webkit-details-marker { display: none; }
+.cancel-box summary .bi { font-size: 1.1rem; }
+.cancel-box summary:hover .cancel-title { text-decoration: underline; text-underline-offset: 3px; }
+.cancel-box summary:focus-visible { outline: 3px solid var(--civic-marigold); outline-offset: 4px; border-radius: 4px; }
+.cancel-hint { color: var(--civic-muted); font-size: 0.9rem; font-weight: 400; }
+.cancel-box[open] { border-color: #d9a79c; }
+.cancel-box[open] summary { color: #8a2a1c; }
+.btn-cancel { background: #b8432f; border-color: #b8432f; color: #fff; }
+.btn-cancel:hover, .btn-cancel:focus-visible { background: #9c3524; border-color: #9c3524; color: #fff; }

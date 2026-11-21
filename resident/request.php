@@ -14,6 +14,15 @@ if ($request === null) {
     abort_not_found('We could not find that request in your account.', 'resident/requests.php', 'Go to my requests');
 }
 
+if (is_post()) {
+    csrf_require();
+    if (post_text('action') === 'cancel') {
+        $result = resident_cancel_request((int) $request['id'], (int) $user['id'], post_text('expected_status'), post_text('reason'));
+        flash($result['ok'] ? 'success' : 'warning', $result['ok'] ? $result['message'] : $result['error']);
+    }
+    redirect('resident/request.php?id=' . (int) $request['id']);
+}
+
 $history = get_request_history((int) $request['id']);
 $answers = decode_request_answers($request['request_data']);
 $status  = $request['status'];
@@ -42,11 +51,21 @@ echo page_header('Request details', '', '', [
   </div>
 <?php endif; ?>
 
+<?php if (is_closed_status($status)): ?>
+  <section class="closed-notice closed-<?= e(STATUS_DETAILS[$status]['slug']) ?> mt-3" role="status" aria-label="<?= e($status) ?>">
+    <strong><?= $status === 'Rejected' ? 'This request was rejected' : 'You cancelled this request' ?></strong>
+    <p><?= $status === 'Cancelled' ? 'Nothing more is needed. You can send a new request any time.' : e(STATUS_DETAILS[$status]['resident_text']) ?></p>
+    <?php if ($status === 'Rejected' && !empty($history[0]['remark'])): ?>
+      <p class="closed-reason"><?= nl2br(e($history[0]['remark'])) ?></p>
+    <?php endif; ?>
+  </section>
+<?php else: ?>
 <section class="panel" aria-labelledby="progress-title">
   <h2 id="progress-title" class="panel-title">Progress</h2>
   <?= status_tracker($status) ?>
   <p class="progress-note"><?= e(STATUS_DETAILS[$status]['resident_text'] ?? '') ?></p>
 </section>
+<?php endif; ?>
 
 <div class="request-layout request-layout-stack mt-3">
   <section class="panel" aria-labelledby="info-title">
@@ -74,5 +93,19 @@ echo page_header('Request details', '', '', [
     <?= history_table($historyShown, false) ?>
   </section>
 </div>
+
+<?php if (resident_can_cancel($status)): ?>
+  <details class="cancel-box mt-3">
+    <summary><i class="bi bi-x-circle" aria-hidden="true"></i><span class="cancel-title">Cancel this request</span><span class="cancel-hint">Possible until staff start processing.</span></summary>
+    <form method="post" action="<?= e(url('resident/request.php') . '?id=' . (int) $request['id']) ?>"
+          data-confirm="Cancel this request? This cannot be undone." data-confirm-button="Yes, cancel request">
+      <?= csrf_field() ?>
+      <input type="hidden" name="action" value="cancel">
+      <input type="hidden" name="expected_status" value="<?= e($status) ?>">
+      <?= form_textarea('reason', 'Reason', [], ['rows' => 3, 'maxlength' => 500]) ?>
+      <button type="submit" class="btn btn-cancel">Cancel request</button>
+    </form>
+  </details>
+<?php endif; ?>
 <?php
 page_end();

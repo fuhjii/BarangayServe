@@ -10,7 +10,7 @@
  * USAGE (from the project folder):
  *   php tools/create_staff.php --name="Maria Santos" --email="maria@barangay.example"
  *
- * Optional: --contact="0917 123 4567"  --address="Barangay Hall"  --password="..."
+ * Optional: --contact="09171234567"  --address="Barangay Hall"  --password="..."
  * If you leave out --password, the script asks for it (it is better not to type
  * passwords in the command, because the command stays in the terminal history).
  */
@@ -29,7 +29,7 @@ if (isset($options['help']) || empty($options['name']) || empty($options['email'
 
 $name    = clean_text(trim((string) $options['name']));
 $email   = normalize_email((string) $options['email']);
-$contact = clean_text(trim((string) ($options['contact'] ?? '0000 000 0000')));
+$contact = clean_text(trim((string) ($options['contact'] ?? '09000000000')));
 $address = clean_text(trim((string) ($options['address'] ?? 'Barangay Hall')));
 
 /** Ask for a password without showing it on screen (falls back to visible input if stty is missing). */

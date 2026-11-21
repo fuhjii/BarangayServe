@@ -28,7 +28,7 @@ echo page_header('My requests', '',
         <label class="form-label" for="filter-status">Show</label>
         <select class="form-select" id="filter-status" name="status" data-auto-submit>
           <option value="">All statuses</option>
-          <?php foreach (REQUEST_STATUSES as $s): ?>
+          <?php foreach (ALL_STATUSES as $s): ?>
             <option value="<?= e($s) ?>"<?= $s === $status ? ' selected' : '' ?>><?= e($s) ?></option>
           <?php endforeach; ?>
         </select>

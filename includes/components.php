@@ -75,6 +75,9 @@ function status_badge(string $status): string
  */
 function status_tracker(string $status): string
 {
+    if (is_closed_status($status)) {
+        return '';   // Rejected and Cancelled are not on the path, so there is no tracker to show.
+    }
     $current = status_position($status);
     $last    = count(REQUEST_STATUSES) - 1;
 
@@ -119,7 +122,7 @@ function reference_stub(array $request, bool $copyButton = false): string
     return $html;
 }
 
-/** A row of five numbers, one per status. Each links to the request list for that status. */
+/** A row of five numbers, one per step (plus a small line for Rejected and Cancelled). Each links to the request list. */
 function status_pipeline(array $counts, string $listPath): string
 {
     $html = '<ol class="pipeline">';
@@ -133,7 +136,22 @@ function status_pipeline(array $counts, string $listPath): string
         $html .= '<span class="pipeline-label" aria-hidden="true">' . e($status) . '</span>';
         $html .= '</a></li>';
     }
-    return $html . '</ol>';
+    $html .= '</ol>';
+
+    // Rejected and Cancelled are not steps on the path, so they sit on a quiet line below.
+    // Only shown when there is at least one, so the numbers always add up to the total.
+    $closed = array_filter(CLOSED_STATUSES, static fn ($st) => (int) ($counts[$st] ?? 0) > 0);
+    if ($closed) {
+        $html .= '<ul class="pipeline-closed" aria-label="Closed requests">';
+        foreach ($closed as $status) {
+            $n    = (int) $counts[$status];
+            $href = url($listPath) . '?' . http_build_query(['status' => $status]);
+            $html .= '<li><a href="' . e($href) . '" class="pipeline-closed-' . e(STATUS_DETAILS[$status]['slug']) . '">'
+                . '<strong>' . $n . '</strong> ' . e($status) . '</a></li>';
+        }
+        $html .= '</ul>';
+    }
+    return $html;
 }
 
 // ---------------------------------------------------------------------------
@@ -298,10 +316,10 @@ function error_summary(array $errors): string
 }
 
 /** The label of a field, with a red * when the field is required. */
-function form_label(string $id, string $label, bool $required): string
+function form_label(string $id, string $label, bool $required, bool $showOptional = true): string
 {
     return '<label for="' . e($id) . '" class="form-label">' . e($label)
-        . ($required ? ' <span class="req" aria-hidden="true">*</span>' : ' <span class="optional">(optional)</span>')
+        . ($required ? ' <span class="req" aria-hidden="true">*</span>' : ($showOptional ? ' <span class="optional">(optional)</span>' : ''))
         . '</label>';
 }
 
@@ -363,7 +381,7 @@ function form_input(string $name, string $label, array $errors, array $opts = []
     return '<div class="mb-3">' . form_label($id, $label, $required) . $input . $notes . '</div>';
 }
 
-/** A multi-line text box. $opts: value, required, help, rows, maxlength, placeholder */
+/** A multi-line text box. $opts: value, required, help, rows, maxlength, placeholder, hide_optional */
 function form_textarea(string $name, string $label, array $errors, array $opts = []): string
 {
     $id       = 'field-' . $name;
@@ -384,7 +402,7 @@ function form_textarea(string $name, string $label, array $errors, array $opts =
         'aria-describedby' => $describedBy,
     ]) . '>' . e((string) ($opts['value'] ?? '')) . '</textarea>';
 
-    return '<div class="mb-3">' . form_label($id, $label, $required) . $area . $notes . '</div>';
+    return '<div class="mb-3">' . form_label($id, $label, $required, empty($opts['hide_optional'])) . $area . $notes . '</div>';
 }
 
 /**

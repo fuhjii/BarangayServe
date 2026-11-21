@@ -54,7 +54,7 @@ echo page_header($service['name'], 'What residents provide for this service.',
       </div>
     <?php endforeach; ?>
   <?php else: ?>
-    <?= empty_state('', 'No requirements yet', 'Residents only give their name, address, contact number, and purpose.', 'staff/field_edit.php?service=' . $serviceId, 'Add a requirement') ?>
+    <?= empty_state('', 'No requirements yet', 'Residents only give their name, address, contact number, and purpose.') ?>
   <?php endif; ?>
 </section>
 <p class="mt-3"><a href="<?= e(url('staff/services.php')) ?>">Back to services</a></p>

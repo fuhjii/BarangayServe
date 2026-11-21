@@ -121,7 +121,7 @@ CREATE TABLE IF NOT EXISTS service_requests (
   applicant_contact  VARCHAR(20)  NOT NULL,
   purpose            VARCHAR(255) NOT NULL,
   request_data       JSON NOT NULL,
-  status             ENUM('Submitted','Under Review','Processing','Ready for Pickup','Completed')
+  status             ENUM('Submitted','Under Review','Processing','Ready for Pickup','Completed','Rejected','Cancelled')
                      NOT NULL DEFAULT 'Submitted',
   submission_token   CHAR(32) NULL,
   submitted_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS service_requests (
 CREATE TABLE IF NOT EXISTS request_history (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
   request_id  INT UNSIGNED NOT NULL,
-  status      ENUM('Submitted','Under Review','Processing','Ready for Pickup','Completed') NOT NULL,
+  status      ENUM('Submitted','Under Review','Processing','Ready for Pickup','Completed','Rejected','Cancelled') NOT NULL,
   entry_type  ENUM('submitted','status_change','correction','remark') NOT NULL,
   remark      VARCHAR(500) NULL,
   changed_by  INT UNSIGNED NOT NULL,

@@ -84,7 +84,8 @@ echo page_header('My account', '', '', [
         ]) ?>
         <?= form_input('contact_number', 'Contact number', $profileErrors, [
             'type' => 'tel', 'value' => $showProfilePost ? old('contact_number') : $user['contact_number'],
-            'required' => true, 'maxlength' => 20, 'autocomplete' => 'tel', 'inputmode' => 'tel',
+            'required' => true, 'maxlength' => 11, 'autocomplete' => 'tel', 'inputmode' => 'numeric', 'pattern' => '[0-9]{11}',
+            'placeholder' => '09171234567', 'help' => '11 digits, numbers only.',
         ]) ?>
         <?= form_input('address', 'Home address', $profileErrors, [
             'value' => $showProfilePost ? old('address') : $user['address'], 'required' => true, 'maxlength' => 255, 'autocomplete' => 'street-address',

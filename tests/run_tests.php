@@ -192,7 +192,7 @@ function addUser(string $name, string $email, string $password, string $role = '
 {
     global $pdo;
     $pdo->prepare('INSERT INTO users (full_name,email,contact_number,address,password_hash,role) VALUES (?,?,?,?,?,?)')
-        ->execute([$name, $email, '0917 000 0000', 'Test Street 1', password_hash($password, PASSWORD_DEFAULT), $role]);
+        ->execute([$name, $email, '09170000000', 'Test Street 1', password_hash($password, PASSWORD_DEFAULT), $role]);
     return (int) $pdo->lastInsertId();
 }
 function serviceId(string $name): int { return (int) val('SELECT id FROM services WHERE name = ?', [$name]); }
@@ -261,7 +261,7 @@ foreach (['fk_requests_user', 'fk_history_request', 'fk_history_user'] as $fk) {
 check('users.email is UNIQUE', (int) val("SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=? AND TABLE_NAME='users' AND COLUMN_NAME='email' AND NON_UNIQUE=0", [$testDb]) > 0);
 check('service_requests.reference_number is UNIQUE', (int) val("SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=? AND TABLE_NAME='service_requests' AND COLUMN_NAME='reference_number' AND NON_UNIQUE=0", [$testDb]) > 0);
 $statusType = strtolower((string) val("SELECT COLUMN_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME='service_requests' AND COLUMN_NAME='status'", [$testDb]));
-check('Exactly the five statuses, in order', $statusType === "enum('submitted','under review','processing','ready for pickup','completed')", $statusType);
+check('The seven statuses, in order (five steps, then Rejected and Cancelled)', $statusType === "enum('submitted','under review','processing','ready for pickup','completed','rejected','cancelled')", $statusType);
 $svcNames = array_column(q('SELECT name FROM services ORDER BY sort_order'), 'name');
 check('The six initial services (SRS FR-03) are present', $svcNames === ['Barangay Clearance', 'Certificate of Residency', 'Certificate of Indigency', 'Certificate of Good Moral Character', 'Business-related Request', 'Other Barangay Service'], implode(' | ', $svcNames));
 check('No user accounts exist before registration', (int) val('SELECT COUNT(*) FROM users') === 0);
@@ -293,12 +293,12 @@ $r = $anon->form('/register.php', '/register.php', ['full_name' => '', 'email' =
 check('Empty form shows a message for every required field',
     has($r->body, 'Please enter your full name.') && has($r->body, 'Please enter your email address.') && has($r->body, 'Please enter your contact number.')
     && has($r->body, 'Please enter your address.') && has($r->body, 'Please enter a password.'));
-$base_ok = ['full_name' => 'Ana Dela Peña', 'email' => $emailA, 'contact_number' => '0917 123 4567', 'address' => '12 Rizal Street, Purok 3', 'password' => $pw, 'password_confirm' => $pw];
+$base_ok = ['full_name' => 'Ana Dela Peña', 'email' => $emailA, 'contact_number' => '09171234567', 'address' => '12 Rizal Street, Purok 3', 'password' => $pw, 'password_confirm' => $pw];
 
 $r = $anon->form('/register.php', '/register.php', ['email' => 'not-an-email'] + $base_ok);
 check('Invalid email format is rejected', has($r->body, 'Please enter a valid email address'));
 $r = $anon->form('/register.php', '/register.php', ['contact_number' => 'abc'] + $base_ok);
-check('Invalid contact number is rejected', has($r->body, 'valid contact number'));
+check('Invalid contact number is rejected', has($r->body, 'exactly 11 digits'));
 $r = $anon->form('/register.php', '/register.php', ['full_name' => 'R2D2<script>'] + $base_ok);
 check('Name with digits or symbols is rejected', has($r->body, 'can only contain letters'));
 $r = $anon->form('/register.php', '/register.php', ['password' => 'ab1', 'password_confirm' => 'ab1'] + $base_ok);
@@ -450,7 +450,7 @@ $r = $A->get('/resident/request_new.php?service=99999');
 check('A service that does not exist redirects back to the service list', $r->path === '/resident/services.php');
 
 $page = "/resident/request_new.php?service=$sidClear";
-$good = ['applicant_name' => 'Ana Dela Peña', 'applicant_contact' => '0917 123 4567', 'applicant_address' => '12 Rizal Street, Purok 3',
+$good = ['applicant_name' => 'Ana Dela Peña', 'applicant_contact' => '09171234567', 'applicant_address' => '12 Rizal Street, Purok 3',
          'purpose' => 'Job application', 'f_date_of_birth' => '1999-04-12', 'f_civil_status' => 'Single', 'f_years_of_residency' => '12'];
 $nReq = (int) val('SELECT COUNT(*) FROM service_requests');
 
@@ -499,7 +499,7 @@ check('Another resident cannot reuse that form token', (int) val('SELECT COUNT(*
 
 // Second request by A, third by B
 $page2 = "/resident/request_new.php?service=$sidRes";
-$r = $A->form($page2, $page2, ['applicant_name' => 'Ana Dela Peña', 'applicant_contact' => '0917 123 4567', 'applicant_address' => '12 Rizal Street, Purok 3',
+$r = $A->form($page2, $page2, ['applicant_name' => 'Ana Dela Peña', 'applicant_contact' => '09171234567', 'applicant_address' => '12 Rizal Street, Purok 3',
     'purpose' => 'School enrollment', 'f_years_of_residency' => '8', 'f_residence_type' => 'Homeowner']);
 $ref2 = $r->ref();
 check('Second request gets the next number (00002)', $ref2 === "BR-$year-00002", $ref2);
@@ -551,7 +551,7 @@ function pipelineCounts(string $html): array
 $dbCounts = function (?int $uid) {
     $rows = $uid === null ? q('SELECT status, COUNT(*) c FROM service_requests GROUP BY status') : q('SELECT status, COUNT(*) c FROM service_requests WHERE user_id = ? GROUP BY status', [$uid]);
     $out = ['Submitted' => 0, 'Under Review' => 0, 'Processing' => 0, 'Ready for Pickup' => 0, 'Completed' => 0];
-    foreach ($rows as $row) { $out[$row['status']] = (int) $row['c']; } return $out;
+    foreach ($rows as $row) { if (isset($out[$row['status']])) { $out[$row['status']] = (int) $row['c']; } } return $out;   // the dashboard row shows the five workflow steps
 };
 $uidA = (int) val('SELECT id FROM users WHERE email = ?', [$emailA]); $uidB = (int) val('SELECT id FROM users WHERE email = ?', [$emailB]);
 check("Resident dashboard counts equal the database (A)", pipelineCounts($A->get('/resident/dashboard.php')->body) === $dbCounts($uidA));
@@ -560,7 +560,7 @@ $r = $A->get("/resident/request.php?id=$id1");
 check('Details page shows reference, service, submission date, current status, and progress', has($r->body, $ref1) && has($r->body, 'Barangay Clearance') && has($r->body, 'Submitted') && has($r->body, 'tracker') && has($r->body, 'History'));
 check('Details page shows what the resident submitted (purpose and service answers)', has($r->body, 'Job application') && has($r->body, 'Civil status') && has($r->body, 'Single'));
 $r = $A->post('/resident/request.php?id=' . $id1, ['csrf_token' => $A->csrf(), 'status' => 'Completed', 'action' => 'advance', 'expected_status' => 'Submitted']);
-check('A resident cannot change a status: the page has no update form and POST does nothing', val('SELECT status FROM service_requests WHERE id = ?', [$id1]) === 'Submitted' && !has($A->get("/resident/request.php?id=$id1")->body, 'name="expected_status"'));
+check('A resident cannot change a status: the page has no update form and POST does nothing', val('SELECT status FROM service_requests WHERE id = ?', [$id1]) === 'Submitted' && !has($A->get("/resident/request.php?id=$id1")->body, 'Update this request'));
 $r = $B->post('/staff/request.php?id=' . $id3, ['csrf_token' => $B->csrf() ?: 'x', 'action' => 'advance', 'expected_status' => 'Submitted', 'remark' => 'hacked']);
 check('A resident cannot send a staff update (403) and nothing changes', $r->code === 403 && val('SELECT status FROM service_requests WHERE id = ?', [$id3]) === 'Submitted');
 
@@ -668,41 +668,90 @@ check('A stale update (page was outdated) is refused and changes nothing', $stat
 $r = $update($S, $id1, 'advance', 'Under Review', 'Documents are being prepared by the secretary.', ['target' => 'Completed', 'status' => 'Completed']);
 check('Staff move to "Processing" with their own remark; extra "target/status" fields are ignored (no skipping steps)',
     $status($id1) === 'Processing' && $histRows($id1)[2]['remark'] === 'Documents are being prepared by the secretary.');
-$r = $update($S, $id1, 'remark', 'Processing', '');
-check('A remark-only update needs text', $status($id1) === 'Processing' && count($histRows($id1)) === 3 && has($r->body, 'Please write the remark'));
-$r = $update($S, $id1, 'remark', 'Processing', str_repeat('x', 501));
-check('A remark longer than 500 characters is refused', count($histRows($id1)) === 3 && has($r->body, '500 characters'));
-$r = $update($S, $id1, 'remark', 'Processing', 'Waiting for the barangay captain to sign.');
-$h = $histRows($id1);
-check('A remark can be added without changing the status', $status($id1) === 'Processing' && count($h) === 4 && $h[3]['entry_type'] === 'remark' && $h[3]['status'] === 'Processing');
+$r = $update($S, $id1, 'reject', 'Processing', str_repeat('x', 501));
+check('A remark longer than 500 characters is refused', $status($id1) === 'Processing' && count($histRows($id1)) === 3 && has($r->body, '500 characters'));
+$r = $update($S, $id1, 'remark', 'Processing', 'Just a note.');
+check('The old "remark only" action no longer exists', $status($id1) === 'Processing' && count($histRows($id1)) === 3);
 $r = $update($S, $id1, 'fly-to-the-moon', 'Processing', 'x');
-check('An unknown action is refused', $status($id1) === 'Processing' && count($histRows($id1)) === 4);
+check('An unknown action is refused', $status($id1) === 'Processing' && count($histRows($id1)) === 3);
 $r = $update($S, $id1, 'advance', 'Processing');
 check('Staff move to "Ready for Pickup"', $status($id1) === 'Ready for Pickup');
 $r = $A->get("/resident/request.php?id=$id1");
 check('The resident is told the document is ready for pickup', has($r->body, 'Ready for pickup') && has($r->body, 'pickup-notice') && has($r->body, 'barangay hall'));
 check('The resident dashboard also announces it', has($A->get('/resident/dashboard.php')->body, 'ready for pickup') && has($A->body, $ref1));
 $r = $update($S, $id1, 'advance', 'Ready for Pickup');
-check('Staff move to "Completed"', $status($id1) === 'Completed' && count($histRows($id1)) === 6);
+check('Staff move to "Completed"', $status($id1) === 'Completed' && count($histRows($id1)) === 5);
 $r = $update($S, $id1, 'advance', 'Completed');
-check('A completed request cannot move forward', $status($id1) === 'Completed' && count($histRows($id1)) === 6 && has($r->body, 'last step'));
+check('A completed request cannot move forward', $status($id1) === 'Completed' && count($histRows($id1)) === 5 && has($r->body, 'last step'));
 $r = $update($S, $id1, 'correct', 'Completed', '');
 check('A correction needs an explanation', $status($id1) === 'Completed' && has($r->body, 'explain the correction'));
 $r = $update($S, $id1, 'correct', 'Completed', 'Resident did not collect the document yet.');
 $h = $histRows($id1);
-check('A correction moves back one step and is marked as a correction in the history', $status($id1) === 'Ready for Pickup' && $h[6]['entry_type'] === 'correction' && count($h) === 7);
+check('A correction moves back one step and is marked as a correction in the history', $status($id1) === 'Ready for Pickup' && $h[5]['entry_type'] === 'correction' && count($h) === 6);
 $update($S, $id1, 'advance', 'Ready for Pickup', 'Document received by the resident.');
 $h = $histRows($id1);
-check('Every earlier history row is still there, in order (nothing was overwritten)', count($h) === 8 && $h[0]['status'] === 'Submitted' && $h[1]['status'] === 'Under Review' && $h[7]['status'] === 'Completed');
+check('Every earlier history row is still there, in order (nothing was overwritten)', count($h) === 7 && $h[0]['status'] === 'Submitted' && $h[1]['status'] === 'Under Review' && $h[6]['status'] === 'Completed');
 $ids = array_column($h, 'id'); $sorted = $ids; sort($sorted);
 check('History ids and times only increase (chronological)', $ids === $sorted);
 
 $r = $A->get("/resident/history.php?id=$id1");
 $pos = [];
-foreach (['Request received.', 'Request is being checked.', 'Documents are being prepared by the secretary.', 'Waiting for the barangay captain to sign.', 'Resident did not collect the document yet.', 'Document received by the resident.'] as $txt) { $pos[] = strpos($r->body, $txt); }
+foreach (['Request received.', 'Request is being checked.', 'Documents are being prepared by the secretary.', 'Resident did not collect the document yet.', 'Document received by the resident.'] as $txt) { $pos[] = strpos($r->body, $txt); }
 check('The resident sees the full history with every remark, newest first', !in_array(false, $pos, true) && $pos === array_values(array_filter($pos)) && $pos === (function ($p) { rsort($p); return $p; })($pos));
 check('The resident history does NOT show which staff member made a change', !has($r->body, 'Updated by') && !has($r->body, 'Sam Staff'));
 check('The staff history shows who made each change', has($S->get("/staff/history.php?id=$id1")->body, 'Updated by') && has($S->body, 'Sam Staff'));
+
+// ---- Reject (staff) and cancel (resident) ----------------------------------
+$mk = function (string $ref, string $st) use ($pdo, $uidA, $sidClear) {
+    $pdo->prepare("INSERT INTO service_requests (reference_number,user_id,service_id,service_type,applicant_name,applicant_address,applicant_contact,purpose,request_data,status) VALUES (?,?,?,'Barangay Clearance','Ana','Addr','09171234567','Test','[]',?)")->execute([$ref, $uidA, $sidClear, $st]);
+    $id = (int) $pdo->lastInsertId();
+    $pdo->prepare("INSERT INTO request_history (request_id,status,entry_type,remark,changed_by) VALUES (?,?,'submitted','Request received.',?)")->execute([$id, 'Submitted', $uidA]);
+    return $id;
+};
+$idRej = $mk('BR-2098-00001', 'Under Review');
+$r = $update($S, $idRej, 'reject', 'Under Review', '');
+check('Staff must give a reason to reject a request', $status($idRej) === 'Under Review' && has($r->body, 'explain why'));
+$r = $update($S, $idRej, 'reject', 'Under Review', 'The address is outside our barangay.');
+$h = $histRows($idRej);
+check('Staff can reject a request with a reason, saved in the history', $status($idRej) === 'Rejected' && end($h)['status'] === 'Rejected' && end($h)['remark'] === 'The address is outside our barangay.');
+$r = $A->get("/resident/request.php?id=$idRej");
+check('The resident sees that it was rejected, with the reason, and no progress tracker', has($r->body, 'was rejected') && has($r->body, 'outside our barangay') && !has($r->body, 'class="tracker"') && !has($r->body, 'Cancel this request'));
+$r = $update($S, $idRej, 'advance', 'Rejected');
+check('A rejected request is closed: staff cannot change it any more', $status($idRej) === 'Rejected' && count($histRows($idRej)) === 2);
+check('The staff page of a closed request has no update form', !has($S->get("/staff/request.php?id=$idRej")->body, 'name="expected_status"'));
+$idReady = $mk('BR-2098-00002', 'Ready for Pickup');
+$r = $update($S, $idReady, 'reject', 'Ready for Pickup', 'Too late');
+check('A request that is ready for pickup cannot be rejected', $status($idReady) === 'Ready for Pickup');
+
+$cancel = function (Client $who, int $id, string $expected, string $reason = '') {
+    $who->get("/resident/request.php?id=$id");
+    return $who->post("/resident/request.php?id=$id", ['csrf_token' => $who->csrf(), 'action' => 'cancel', 'expected_status' => $expected, 'reason' => $reason]);
+};
+$idCan = $mk('BR-2098-00003', 'Submitted');
+check('The resident sees a cancel option while the request is Submitted', has($A->get("/resident/request.php?id=$idCan")->body, 'Cancel this request'));
+$cancel($A, $idCan, 'Submitted', 'I applied by mistake.');
+$h = $histRows($idCan);
+check('A resident can cancel a Submitted request; the reason is saved in the history', $status($idCan) === 'Cancelled' && end($h)['status'] === 'Cancelled' && end($h)['remark'] === 'I applied by mistake.' && (int) end($h)['changed_by'] === $uidA);
+$idCan2 = $mk('BR-2098-00004', 'Under Review');
+$cancel($A, $idCan2, 'Under Review');
+$h = $histRows($idCan2);
+check('A resident can cancel an Under Review request (reason optional)', $status($idCan2) === 'Cancelled' && end($h)['remark'] === 'Cancelled by the resident.');
+$idProc = $mk('BR-2098-00005', 'Processing');
+check('There is no cancel option once staff are processing it', !has($A->get("/resident/request.php?id=$idProc")->body, 'Cancel this request'));
+$cancel($A, $idProc, 'Processing');
+check('Cancelling a Processing request is refused', $status($idProc) === 'Processing' && count($histRows($idProc)) === 1);
+$cancel($B, $idCan2, 'Cancelled');
+$A->get("/resident/request.php?id=$idCan2");
+$cancel($B, $idProc, 'Processing');
+check('A resident cannot cancel another resident\'s request', $status($idProc) === 'Processing');
+$r = $update($S, $idCan, 'advance', 'Cancelled');
+check('A cancelled request is closed: staff cannot change it', $status($idCan) === 'Cancelled');
+check('Cancelled and Rejected can be filtered on the staff list', has($S->get('/staff/requests.php?status=Cancelled')->body, 'BR-2098-00003') && !has($S->body, 'BR-2098-00005'));
+$bad11 = true;
+foreach (['0917123456', '091712345678', '0917 123 4567', '0917abc4567', '+639171234567'] as $num) {
+    $bad11 = $bad11 && has($anon->form('/register.php', '/register.php', ['contact_number' => $num] + $base_ok)->body, 'exactly 11 digits');
+}
+check('A contact number must be exactly 11 digits (too short, too long, spaces, letters and +63 are all refused)', $bad11);
 $r = $A->get("/resident/request.php?id=$id1");
 check('Completed requests show "Completed" and the full tracker', has($r->body, 'Completed') && !has($r->body, 'pickup-notice'));
 check('The staff dashboard counts changed accordingly', pipelineCounts($S->get('/staff/dashboard.php')->body) === $dbCounts(null));

@@ -142,7 +142,8 @@ echo page_header($service['name'], $service['description'], '', [
     ]) ?>
     <?= form_input('applicant_contact', 'Contact number', $errors, [
         'type' => 'tel', 'value' => $posted ? old('applicant_contact') : $user['contact_number'],
-        'required' => true, 'maxlength' => 20, 'autocomplete' => 'tel', 'inputmode' => 'tel',
+        'required' => true, 'maxlength' => 11, 'autocomplete' => 'tel', 'inputmode' => 'numeric', 'pattern' => '[0-9]{11}',
+        'placeholder' => '09171234567', 'help' => '11 digits, numbers only.',
     ]) ?>
     <?= form_input('applicant_address', 'Home address', $errors, [
         'value' => $posted ? old('applicant_address') : $user['address'], 'required' => true, 'maxlength' => 255, 'autocomplete' => 'street-address',

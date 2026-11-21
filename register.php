@@ -75,8 +75,9 @@ page_start('Create an account', ['area' => 'public']);
           'help' => 'Used to log in.',
       ]) ?>
       <?= form_input('contact_number', 'Contact number', $errors, [
-          'type' => 'tel', 'value' => old('contact_number'), 'required' => true, 'maxlength' => 20,
-          'autocomplete' => 'tel', 'inputmode' => 'tel', 'placeholder' => '0917 123 4567',
+          'type' => 'tel', 'value' => old('contact_number'), 'required' => true, 'maxlength' => 11,
+          'autocomplete' => 'tel', 'inputmode' => 'numeric', 'pattern' => '[0-9]{11}', 'minlength' => 11, 'placeholder' => '09171234567',
+          'help' => '11 digits, numbers only.',
       ]) ?>
       <?= form_input('address', 'Home address', $errors, [
           'value' => old('address'), 'required' => true, 'maxlength' => 255, 'autocomplete' => 'street-address',
