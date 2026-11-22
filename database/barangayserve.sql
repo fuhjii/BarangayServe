@@ -214,84 +214,24 @@ INSERT IGNORE INTO services (name, description, pickup_requirements, sort_order)
    'Any other barangay document or service that is not listed above. Describe what you need.', NULL, 60);
 
 -- ---------------------------------------------------------------------
--- INITIAL DATA: service-specific questions
---   These are proposed starting points. The SRS does not list the exact
---   questions for each service, so barangay staff should confirm or change
---   them (Staff > Services). Name, address, contact number, and purpose are
---   asked for every service and are NOT listed here.
+-- INITIAL DATA: service-specific details
+--   These follow the information the barangay told us it needs for each
+--   document. Name, address, contact number, and purpose are asked for every
+--   service and are NOT listed here. Staff can still change any of this in
+--   Staff > Services.
 -- ---------------------------------------------------------------------
 
 -- Barangay Clearance
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'date_of_birth', 'Date of birth', 'date', 1, NULL, NULL, NULL, NULL, 10
+SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 10
 FROM services s WHERE s.name = 'Barangay Clearance';
 
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'civil_status', 'Civil status', 'select', 1, 'Single\nMarried\nWidowed\nSeparated', NULL, NULL, NULL, 20
+SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 20
 FROM services s WHERE s.name = 'Barangay Clearance';
 
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'years_of_residency', 'Years of residency in the barangay', 'number', 1, NULL, 0, 120, 'Enter 0 if you have lived here for less than one year.', 30
-FROM services s WHERE s.name = 'Barangay Clearance';
-
--- Certificate of Residency
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'years_of_residency', 'Years of residency in the barangay', 'number', 1, NULL, 0, 120, 'Enter 0 if you have lived here for less than one year.', 10
-FROM services s WHERE s.name = 'Certificate of Residency';
-
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'residence_type', 'You are living in the barangay as', 'select', 1, 'Homeowner\nRenter\nLiving with family or relatives\nCaretaker\nOther', NULL, NULL, NULL, 20
-FROM services s WHERE s.name = 'Certificate of Residency';
-
--- Certificate of Indigency
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'household_members', 'Number of people in your household', 'number', 1, NULL, 1, 30, NULL, 10
-FROM services s WHERE s.name = 'Certificate of Indigency';
-
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'assistance_needed', 'What kind of assistance is this for?', 'select', 1,
-       'Medical or hospital\nEducation or scholarship\nLegal\nBurial or funeral\nOther government assistance', NULL, NULL,
-       'Income details are not collected online. Staff may ask for proof when you pick up the certificate.', 20
-FROM services s WHERE s.name = 'Certificate of Indigency';
-
--- Certificate of Good Moral Character
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'years_of_residency', 'Years of residency in the barangay', 'number', 1, NULL, 0, 120, 'Enter 0 if you have lived here for less than one year.', 10
-FROM services s WHERE s.name = 'Certificate of Good Moral Character';
-
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'requesting_organization', 'School, employer, or office that needs this certificate', 'text', 0, NULL, NULL, NULL, 'Leave blank if not applicable.', 20
-FROM services s WHERE s.name = 'Certificate of Good Moral Character';
-
--- Business-related Request
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'request_kind', 'Type of business request', 'select', 1,
-       'New business clearance\nRenewal of business clearance\nClosure of business\nOther business certification', NULL, NULL, NULL, 10
-FROM services s WHERE s.name = 'Business-related Request';
-
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'business_name', 'Business name', 'text', 1, NULL, NULL, NULL, NULL, 20
-FROM services s WHERE s.name = 'Business-related Request';
-
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'business_address', 'Business address', 'text', 1, NULL, NULL, NULL, 'Street and building, inside the barangay.', 30
-FROM services s WHERE s.name = 'Business-related Request';
-
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'nature_of_business', 'Nature of business', 'text', 1, NULL, NULL, NULL, 'For example: sari-sari store, carinderia, repair shop.', 40
-FROM services s WHERE s.name = 'Business-related Request';
-
--- Other Barangay Service
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'service_description', 'Describe the service or document you need', 'textarea', 1, NULL, NULL, NULL, 'Be as specific as you can so staff can help you faster.', 10
-FROM services s WHERE s.name = 'Other Barangay Service';
-
--- ---------------------------------------------------------------------
--- Details the barangay asks for (age, gender, civil status, lender)
--- ---------------------------------------------------------------------
--- Barangay Clearance
-INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 25
+SELECT s.id, 'civil_status', 'Civil status', 'select', 1, 'Single\nMarried\nWidowed\nSeparated', NULL, NULL, NULL, 30
 FROM services s WHERE s.name = 'Barangay Clearance';
 
 -- Loan Clearance
@@ -313,35 +253,57 @@ FROM services s WHERE s.name = 'Loan Clearance';
 
 -- Certificate of Residency
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 2
+SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 10
 FROM services s WHERE s.name = 'Certificate of Residency';
 
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 4
+SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 20
 FROM services s WHERE s.name = 'Certificate of Residency';
 
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'civil_status', 'Civil status', 'select', 1, 'Single\nMarried\nWidowed\nSeparated', NULL, NULL, NULL, 6
+SELECT s.id, 'civil_status', 'Civil status', 'select', 1, 'Single\nMarried\nWidowed\nSeparated', NULL, NULL, NULL, 30
+FROM services s WHERE s.name = 'Certificate of Residency';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'years_of_residency', 'Length of residency (years)', 'number', 1, NULL, 0, 120, 'Enter 0 if you have lived here for less than one year.', 40
 FROM services s WHERE s.name = 'Certificate of Residency';
 
 -- Certificate of Indigency
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 2
+SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 10
 FROM services s WHERE s.name = 'Certificate of Indigency';
 
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 4
+SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 20
 FROM services s WHERE s.name = 'Certificate of Indigency';
 
 -- Certificate of Good Moral Character
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 2
+SELECT s.id, 'age', 'Age', 'number', 1, NULL, 1, 120, NULL, 10
 FROM services s WHERE s.name = 'Certificate of Good Moral Character';
 
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 4
+SELECT s.id, 'gender', 'Gender', 'select', 1, 'Male\nFemale', NULL, NULL, NULL, 20
 FROM services s WHERE s.name = 'Certificate of Good Moral Character';
 
 INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
-SELECT s.id, 'civil_status', 'Civil status', 'select', 1, 'Single\nMarried\nWidowed\nSeparated', NULL, NULL, NULL, 6
+SELECT s.id, 'civil_status', 'Civil status', 'select', 1, 'Single\nMarried\nWidowed\nSeparated', NULL, NULL, NULL, 30
 FROM services s WHERE s.name = 'Certificate of Good Moral Character';
+
+-- Business-related Request
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'business_name', 'Business name', 'text', 1, NULL, NULL, NULL, NULL, 10
+FROM services s WHERE s.name = 'Business-related Request';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'business_address', 'Business address', 'text', 1, NULL, NULL, NULL, 'Street and building, inside the barangay.', 20
+FROM services s WHERE s.name = 'Business-related Request';
+
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'request_kind', 'Nature of business', 'select', 1, 'New\nRenewal', NULL, NULL, NULL, 30
+FROM services s WHERE s.name = 'Business-related Request';
+
+-- Other Barangay Service
+INSERT IGNORE INTO service_fields (service_id, field_key, label, field_type, is_required, options, min_value, max_value, help_text, sort_order)
+SELECT s.id, 'service_description', 'Describe the service or document you need', 'textarea', 1, NULL, NULL, NULL, 'Be as specific as you can so staff can help you faster.', 10
+FROM services s WHERE s.name = 'Other Barangay Service';

@@ -444,25 +444,25 @@ $sidInd = serviceId('Certificate of Indigency'); $sidBiz = serviceId('Business-r
 $r = $A->get("/resident/request_new.php?service=$sidBiz");
 check('The form changes with the selected service (business form asks for the business name)', has($r->body, 'Business name') && has($r->body, 'Nature of business') && !has($r->body, 'Civil status'));
 $r = $A->get("/resident/request_new.php?service=$sidClear");
-check('Clearance form asks for date of birth, civil status, years of residency', has($r->body, 'Date of birth') && has($r->body, 'Civil status') && has($r->body, 'Years of residency'));
+check('Clearance form asks for age, gender, civil status only', has($r->body, 'Age') && has($r->body, 'Gender') && has($r->body, 'Civil status') && !has($r->body, 'Date of birth') && !has($r->body, 'Years of residency'));
 check('The form marks required fields and has a confirmation prompt', has($r->body, 'class="req"') && has($r->body, 'data-confirm='));
 $r = $A->get('/resident/request_new.php?service=99999');
 check('A service that does not exist redirects back to the service list', $r->path === '/resident/services.php');
 
 $page = "/resident/request_new.php?service=$sidClear";
 $good = ['applicant_name' => 'Ana Dela Peña', 'applicant_contact' => '09171234567', 'applicant_address' => '12 Rizal Street, Purok 3',
-         'purpose' => 'Job application', 'f_date_of_birth' => '1999-04-12', 'f_gender' => 'Male', 'f_civil_status' => 'Single', 'f_years_of_residency' => '12'];
+         'purpose' => 'Job application', 'f_age' => '27', 'f_gender' => 'Male', 'f_civil_status' => 'Single'];
 $nReq = (int) val('SELECT COUNT(*) FROM service_requests');
 
 $r = $A->form($page, $page, ['purpose' => '', 'applicant_name' => '', 'applicant_contact' => '', 'applicant_address' => '']);
-check('Submitting an empty form is blocked with messages', has($r->body, 'Please fix these') && has($r->body, 'Please enter the purpose of your request.') && has($r->body, 'Please fill in: Date of birth.'));
-$r = $A->form($page, $page, ['f_date_of_birth' => '2999-01-01'] + $good);
-check('A future date of birth is rejected', has($r->body, 'cannot be in the future'));
+check('Submitting an empty form is blocked with messages', has($r->body, 'Please fix these') && has($r->body, 'Please enter the purpose of your request.') && has($r->body, 'Please fill in: Age'));
+$r = $A->form($page, $page, ['f_age' => '0'] + $good);
+check('An age below 1 is rejected', has($r->body, 'whole number from 1 to 120'));
 $r = $A->form($page, $page, ['f_civil_status' => 'Hacker'] + $good);
 check('A choice that is not in the list is rejected', has($r->body, 'Please choose one of the listed options'));
-$r = $A->form($page, $page, ['f_years_of_residency' => '500'] + $good);
-check('A number outside the allowed range is rejected', has($r->body, 'whole number from 0 to 120'));
-$r = $A->form($page, $page, ['f_years_of_residency' => 'abc'] + $good);
+$r = $A->form($page, $page, ['f_age' => '500'] + $good);
+check('A number outside the allowed range is rejected', has($r->body, 'whole number from 1 to 120'));
+$r = $A->form($page, $page, ['f_age' => 'abc'] + $good);
 check('Text in a number field is rejected', has($r->body, 'whole number'));
 $r = $A->form($page, $page, ['purpose' => str_repeat('x', 300)] + $good);
 check('A purpose longer than 255 characters is rejected', has($r->body, 'between 3 and 255'));
@@ -500,12 +500,12 @@ check('Another resident cannot reuse that form token', (int) val('SELECT COUNT(*
 // Second request by A, third by B
 $page2 = "/resident/request_new.php?service=$sidRes";
 $r = $A->form($page2, $page2, ['applicant_name' => 'Ana Dela Peña', 'applicant_contact' => '09171234567', 'applicant_address' => '12 Rizal Street, Purok 3',
-    'purpose' => 'School enrollment', 'f_age' => '27', 'f_gender' => 'Male', 'f_civil_status' => 'Single', 'f_years_of_residency' => '8', 'f_residence_type' => 'Homeowner']);
+    'purpose' => 'School enrollment', 'f_age' => '27', 'f_gender' => 'Male', 'f_civil_status' => 'Single', 'f_years_of_residency' => '8']);
 $ref2 = $r->ref();
 check('Second request gets the next number (00002)', $ref2 === "BR-$year-00002", $ref2);
 $page3 = "/resident/request_new.php?service=$sidInd";
 $r = $B->form($page3, $page3, ['applicant_name' => 'Ben Reyes', 'applicant_contact' => '09181234567', 'applicant_address' => '45 Mabini Avenue',
-    'purpose' => 'Medical assistance', 'f_age' => '34', 'f_gender' => 'Male', 'f_household_members' => '5', 'f_assistance_needed' => 'Medical or hospital']);
+    'purpose' => 'Medical assistance', 'f_age' => '34', 'f_gender' => 'Male']);
 $ref3 = $r->ref();
 check('Request by another resident gets 00003', $ref3 === "BR-$year-00003", $ref3);
 $id1 = (int) val('SELECT id FROM service_requests WHERE reference_number = ?', [$ref1]);
@@ -516,7 +516,7 @@ $id3 = (int) val('SELECT id FROM service_requests WHERE reference_number = ?', [
 $xss = "<script>alert('xss')</script><img src=x onerror=alert(1)>";
 $page4 = "/resident/request_new.php?service=$sidBiz";
 $r = $B->form($page4, $page4, ['applicant_name' => 'Ben Reyes', 'applicant_contact' => '09181234567', 'applicant_address' => '45 Mabini Avenue',
-    'purpose' => $xss, 'f_request_kind' => 'New business clearance', 'f_business_name' => '"><svg onload=alert(1)>', 'f_business_address' => 'Mabini Ave', 'f_nature_of_business' => 'Store']);
+    'purpose' => $xss, 'f_request_kind' => 'New', 'f_business_name' => '"><svg onload=alert(1)>', 'f_business_address' => 'Mabini Ave']);
 $ref4 = $r->ref(); $id4 = (int) val('SELECT id FROM service_requests WHERE reference_number = ?', [$ref4]);
 $r = $B->get("/resident/request.php?id=$id4");
 check('Script tags in the purpose and answers are shown as harmless text (resident view)',
