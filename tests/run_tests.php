@@ -811,7 +811,7 @@ $lcId = serviceId('Loan Clearance');
 check('Loan Clearance exists with the details the barangay asks for', $lcId > 0 && (int) val("SELECT COUNT(*) FROM service_fields WHERE service_id = ? AND field_key IN ('age','gender','civil_status','lending_institution')", [$lcId]) === 4);
 check('Every service has "what to bring" filled in except Other', (int) val("SELECT COUNT(*) FROM services WHERE name <> 'Other Barangay Service' AND (pickup_requirements IS NULL OR pickup_requirements = '') AND name NOT LIKE 'Certificate of Solo%'") === 0);
 $lsBody = $B->get('/resident/services.php')->body;
-check('Residents see what to bring on the services list', has($lsBody, 'Bring when you pick it up') && has($lsBody, 'DTI registration'));
+check('Residents see what to bring on the services list', has($lsBody, 'What to bring') && has($lsBody, 'DTI registration'));
 $S->get("/staff/service_edit.php?id=$sidClear");
 $r = $S->form("/staff/service_edit.php?id=$sidClear", "/staff/service_edit.php?id=$sidClear", ['name' => 'Barangay Clearance', 'description' => 'Test description.', 'pickup_requirements' => 'Valid ID and Cedula', 'sort_order' => '10', 'is_active' => '1']);
 check('Staff can change what to bring', val('SELECT pickup_requirements FROM services WHERE id = ?', [$sidClear]) === 'Valid ID and Cedula');

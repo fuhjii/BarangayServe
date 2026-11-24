@@ -23,7 +23,7 @@ echo page_header('Request a service', '', '', [
             <h2><?= e($service['name']) ?></h2>
             <?php if ($service['description'] !== ''): ?><p><?= e($service['description']) ?></p><?php endif; ?>
             <?php if (!empty($service['pickup_requirements'])): ?>
-              <p class="service-bring"><i class="bi bi-bag-check" aria-hidden="true"></i>Bring when you pick it up: <?= e($service['pickup_requirements']) ?></p>
+              <p class="service-bring"><i class="bi bi-bag-check" aria-hidden="true"></i>What to bring: <?= e($service['pickup_requirements']) ?></p>
             <?php endif; ?>
           </div>
           <a class="btn btn-primary" href="<?= e(url('resident/request_new.php') . '?service=' . (int) $service['id']) ?>">

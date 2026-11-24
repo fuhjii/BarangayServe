@@ -127,7 +127,7 @@ echo page_header($service['name'], $service['description'], '', [
 <section class="panel service-request-form" aria-labelledby="form-title">
   <h2 id="form-title" class="visually-hidden">Request form: <?= e($service['name']) ?></h2>
   <?php if (!empty($service['pickup_requirements'])): ?>
-    <p class="bring-note"><i class="bi bi-bag-check" aria-hidden="true"></i><span><strong>Bring when you pick it up:</strong> <?= e($service['pickup_requirements']) ?></span></p>
+    <p class="bring-note"><i class="bi bi-bag-check" aria-hidden="true"></i><span><strong>What to bring:</strong> <?= e($service['pickup_requirements']) ?></span></p>
   <?php endif; ?>
   <p class="text-body-secondary">Fields marked <span class="text-danger" aria-hidden="true">*</span> are required. Please check your answers before you send them. You cannot change a request after you submit it.</p>
 
