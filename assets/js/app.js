@@ -198,4 +198,9 @@
   /* ---------- 7. Put the keyboard focus on the list of form errors ---------- */
   var summary = document.getElementById('error-summary');
   if (summary) { summary.focus(); }
+
+  /* ---------- 8. "Cancel this request": only the button opens the box, not the hint beside it ---------- */
+  document.querySelectorAll('.cancel-box summary .cancel-hint').forEach(function (hint) {
+    hint.addEventListener('click', function (event) { event.preventDefault(); });
+  });
 })();

@@ -98,7 +98,7 @@ echo page_header('Request details', '', '', [
 
 <?php if (resident_can_cancel($status)): ?>
   <details class="cancel-box mt-3">
-    <summary><i class="bi bi-x-circle" aria-hidden="true"></i><span class="cancel-title">Cancel this request</span><span class="cancel-hint">Possible until staff start processing.</span></summary>
+    <summary><span class="cancel-trigger"><i class="bi bi-x-circle" aria-hidden="true"></i><span class="cancel-title">Cancel this request</span><i class="bi bi-chevron-down cancel-chevron" aria-hidden="true"></i></span><span class="cancel-hint">Possible until staff start processing.</span></summary>
     <form method="post" action="<?= e(url('resident/request.php') . '?id=' . (int) $request['id']) ?>"
           data-confirm="Cancel this request? This cannot be undone." data-confirm-button="Yes, cancel request">
       <?= csrf_field() ?>

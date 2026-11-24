@@ -1025,3 +1025,17 @@ body.area-public .app-main.container, body.area-error .app-main.container { max-
 .service-bring .bi,
 .bring-note .bi { color: #b8860b; margin-top: .15rem; flex: none; }
 .bring-note { padding: .6rem .8rem; border-radius: .5rem; background: rgba(224,168,32,.12); color: inherit; margin-bottom: 1rem; }
+
+/* --- Round 5: "Cancel this request" looks like a button and shows that it opens ---
+   Hover only gives a light tint (never a red fill), so it does not look like the cancel
+   has already been chosen. The real, strong red button is the confirmation inside the box. */
+.cancel-box summary { width: fit-content; max-width: 100%; }
+.cancel-box summary .cancel-hint { cursor: default; }
+.cancel-trigger { display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.5rem 0.95rem; border: 1.5px solid #b8432f; border-radius: var(--r-md, 0.5rem); background: #fff; color: #8a2a1c; box-shadow: 0 1px 2px rgba(138, 42, 28, 0.15); transition: background-color 0.15s ease, border-color 0.15s ease; }
+.cancel-box summary:hover .cancel-title { text-decoration: none; }
+.cancel-trigger:hover { background: #fbeae6; border-color: #8a2a1c; }
+.cancel-box[open] .cancel-trigger { background: #fbeae6; }
+.cancel-box[open] .cancel-trigger:hover { background: #f6d9d2; }
+.cancel-chevron { font-size: 0.85rem !important; transition: transform 0.2s ease; }
+.cancel-box[open] .cancel-chevron { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .cancel-trigger, .cancel-chevron { transition: none; } }
