@@ -524,6 +524,19 @@ function count_requests_by_status(?int $userId = null): array
     return $counts;
 }
 
+/**
+ * The id of the newest row in request_history.
+ *
+ * Every new request, status change, correction, remark, and cancellation adds a row to
+ * request_history, so this ONE number changes whenever something happened that the staff
+ * should see. Asking for it is a single primary-key lookup, which makes it cheap enough to
+ * ask every few seconds (see staff/check_new.php and section 8 of assets/js/app.js).
+ */
+function latest_history_id(): int
+{
+    return (int) db()->query('SELECT COALESCE(MAX(id), 0) FROM request_history')->fetchColumn();
+}
+
 /** Keep a page number inside the real range (1 .. last page). */
 function clamp_page(int $page, int $total, int $perPage): int
 {

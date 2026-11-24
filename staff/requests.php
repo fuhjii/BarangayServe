@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../includes/bootstrap.php';
 $user = require_staff();
 
+$liveVersion = latest_history_id();   // read first, so a change that happens while the page loads is not missed
 $filters = staff_filters_from_query();
 $perPage = max(5, (int) config('per_page', 10));
 $result  = list_staff_requests($filters, max(1, get_int('page')), $perPage);
@@ -25,7 +26,7 @@ $keep = array_filter([
 
 $services = get_services_for_staff();
 
-page_start('Requests', ['area' => 'staff', 'active' => 'requests']);
+page_start('Requests', ['area' => 'staff', 'active' => 'requests', 'live_refresh' => true, 'live_version' => $liveVersion]);
 echo page_header('Requests', '', '', [
     ['Dashboard', 'staff/dashboard.php'], ['Requests', null],
 ]);

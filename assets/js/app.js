@@ -147,6 +147,54 @@
     select.addEventListener('change', function () { if (select.form) { select.form.submit(); } });
   });
 
+  /* ---------- 8. Staff list and dashboard reload themselves when a request changes ----------
+     Every few seconds the page asks staff/check_new.php for ONE number (the newest history
+     entry). The page is reloaded once, only when that number is different from the one the
+     page was built with. Nothing is asked while the tab is hidden, and a reload waits while
+     the staff member is typing in a field. */
+  var live = document.querySelector('[data-live-refresh]');
+  if (live && window.fetch) {
+    (function () {
+      var endpoint = live.getAttribute('data-live-refresh');
+      var seen = live.getAttribute('data-live-version');
+      var delay = Math.max(2, parseInt(live.getAttribute('data-live-seconds'), 10) || 5) * 1000;
+      var timer = null;
+      var asking = false;
+      var finished = false;
+
+      function start() { if (!timer && !finished) { timer = window.setInterval(check, delay); } }
+      function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
+      function isTyping() {
+        var el = document.activeElement;
+        return !!el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+      }
+
+      function check() {
+        if (asking || finished || document.hidden) { return; }
+        asking = true;
+        fetch(endpoint, { credentials: 'same-origin', cache: 'no-store', headers: { 'Accept': 'application/json' } })
+          .then(function (response) {
+            if (response.status === 401) { finished = true; stop(); return null; }   // logged out: stop asking
+            return response.ok ? response.json() : null;
+          })
+          .then(function (data) {
+            asking = false;
+            if (data && String(data.version) !== seen && !isTyping()) {
+              finished = true;
+              stop();
+              window.location.reload();
+            }
+          })
+          .catch(function () { asking = false; });   // a failed check is simply tried again next time
+      }
+
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { stop(); } else { check(); start(); }
+      });
+      start();
+    })();
+  }
+
   /* ---------- 7. Put the keyboard focus on the list of form errors ---------- */
   var summary = document.getElementById('error-summary');
   if (summary) { summary.focus(); }

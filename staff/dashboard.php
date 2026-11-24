@@ -6,11 +6,12 @@
 require_once __DIR__ . '/../includes/bootstrap.php';
 $user = require_staff();
 
+$liveVersion = latest_history_id();   // read first, so a change that happens while the page loads is not missed
 $counts  = count_requests_by_status(null);
 $waiting = list_staff_requests(['status' => 'Submitted', 'sort' => 'oldest'], 1, 5)['rows'];
 $latest  = list_staff_requests(['sort' => 'newest'], 1, 8)['rows'];
 
-page_start('Staff dashboard', ['area' => 'staff', 'active' => 'dashboard']);
+page_start('Staff dashboard', ['area' => 'staff', 'active' => 'dashboard', 'live_refresh' => true, 'live_version' => $liveVersion]);
 echo page_header('Staff dashboard', '',
     '<a class="btn btn-primary" href="' . e(url('staff/requests.php')) . '">All requests</a>');
 ?>

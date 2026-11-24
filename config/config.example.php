@@ -24,6 +24,7 @@ return [
     'timezone' => 'Asia/Manila',   // all dates and times are stored and shown in this time zone
     'debug'    => false,           // true = show PHP errors on screen (use ONLY on your own computer)
     'per_page' => 10,              // rows per page in request lists
+    'live_refresh_seconds' => 5,   // staff list and dashboard check for new/changed requests this often (2 to 300)
 
     // Browser security rule that only allows this site's own scripts and styles.
     // Leave it true. Set it to false only if a free web host injects its own

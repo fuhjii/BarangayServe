@@ -16,6 +16,8 @@
  *     active      which navigation link is highlighted
  *     body_class  extra CSS class for <body>
  *     description text for the <meta description>
+ *     live_refresh true = the page reloads itself when a request changes (staff pages only)
+ *     live_version  latest_history_id() read BEFORE the page's own queries (used with live_refresh)
  */
 
 function app_name(): string
@@ -64,7 +66,15 @@ function page_start(string $title, array $options = []): void
 
     render_navbar($area, $active);
 
-    echo '<main id="main" class="app-main container" tabindex="-1">' . "\n";
+    // Staff pages that reload themselves when a request changes (see assets/js/app.js, section 8).
+    $live = '';
+    if (!empty($options['live_refresh'])) {
+        $seconds = min(300, max(2, (int) config('live_refresh_seconds', 5)));
+        $live = ' data-live-refresh="' . e(url('staff/check_new.php')) . '"'
+            . ' data-live-version="' . (int) ($options['live_version'] ?? 0) . '"'
+            . ' data-live-seconds="' . $seconds . '"';
+    }
+    echo '<main id="main" class="app-main container" tabindex="-1"' . $live . '>' . "\n";
     render_topbar($area, $active);
     render_flash_messages();
 }
